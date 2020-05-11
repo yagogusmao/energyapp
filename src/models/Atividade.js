@@ -4,7 +4,7 @@ const Schema = moongose.Schema;
 const AtividadeSchema = new Schema({
     _id: {type: String, required: true},
     nome: {type: String, required: true},
-    tipo: {type: String, enum: ['I', 'R'], required: true},
+    tipo: {type: String, enum: ['INSTALADO', 'RETIRADO'], required: true},
     valor: {type: Number, required: true}
 });
 
