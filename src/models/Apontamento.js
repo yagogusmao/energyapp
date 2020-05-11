@@ -1,11 +1,12 @@
 const moongose = require('mongoose');
 const Schema = moongose.Schema;
+const Atividade = require('../models/Atividade');
 
 const ApontamentoSchema = new Schema({
-    tipo: {type: String, enum: ['MANUTENCAO', 'CONSTRUCAO'], required: true},
+    tipo: {type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "OPERACIONAL", "PERDAS", "LINHAVIVA"], required: true},
     pessoa: {
         supervisor: {type: String, required: true},
-        tecnicoEnergisa: Number,
+        tecnicoEnergisa: String,
         encarregado: {type: String, required: true},
     },
     veiculo: {
@@ -15,26 +16,21 @@ const ApontamentoSchema = new Schema({
             fim: Number,
             total: Number
         },
-        si: String,
+        si: {type: String, required: true}
     },
     PgCp: String,
     equipe: {type: String, required: true},
     cidade: {type: String, required: true},
     endereco: {type: String, required: true},
-    intervalo: Date,
     hora: {
         inicio: {type: Date, required: true},
         fim: Date
     },
-    local: {
-        saida: {type: String, required: true},
-        chegada: String
-    },
     atividades: [{
         _id: {type: String, ref: 'Atividade'},
-        quantidade: Number,
-        PgCp: String
-    }]
+        quantidade: Number
+    }],
+    status: {type: String, enum: ["INICIADO", "FINALIZADO"], required: true}
 });
 
 ApontamentoSchema.methods.iniciar = (tipo, pessoaSupervisor, pessoaEncarregado, veiculoPlaca, veiculoKmInicio, equipe, cidade, endereco, horaInicio, localSaida) => {
@@ -48,14 +44,30 @@ ApontamentoSchema.methods.iniciar = (tipo, pessoaSupervisor, pessoaEncarregado, 
     this.endereco = endereco;
     this.hora.inicio = horaInicio;
     this.local.saida = localSaida;
+    this.status = "INICIADO";
 }
 
 ApontamentoSchema.methods.atualizar = () => {
 
 }
 
-ApontamentoSchema.methods.finalizar = () => {
+ApontamentoSchema.methods.finalizar = (tecnicoEnergisa, veiculoKmFim, PgCp, horaFim, atividades) => {
+    this.pessoa.tecnicoEnergisa = tecnicoEnergisa;
+    this.veiculo.kilometragem.fim = veiculoKmFim;
+    this.veiculo.kilometragem.total = this.veiculo.kilometragem.fim - this.veiculo.kilometragem.inicio; 
+    this.PgCp = PgCp;
+    this.hora.fim = horaFim;
+    this.atividades = atividades;
+    this.status = "FINALIZADO"
+}
 
+ApontamentoSchema.methods.pegarInformacoes = async () => {
+    let total = 0;
+    this.atividades.forEach(atividade => {
+        await Atividade.findById(atividade._id).then(atividade => {
+            total += atividade.valor;
+        })
+    })
 }
 
 module.exports = moongose.model('Apontamento', ApontamentoSchema);
