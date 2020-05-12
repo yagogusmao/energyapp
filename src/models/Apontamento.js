@@ -22,6 +22,7 @@ const ApontamentoSchema = new Schema({
     equipe: { type: String, required: true },
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
+    data: { type: Date, required: true },
     local: {
         saida: { type: String, required: true },
         chegada: { type: String, required: true }
@@ -46,6 +47,7 @@ ApontamentoSchema.methods.iniciar = function iniciar(tipo, pessoaSupervisor, pes
     this.cidade = cidade;
     this.endereco = endereco;
     this.hora.inicio = new Date();
+    this.data = this.hora.inicio;
     this.local.saida = localSaida;
     this.local.chegada = `Cidade: ${this.cidade}, Endereço: ${this.endereco}`;
     this.status = "INICIADO";

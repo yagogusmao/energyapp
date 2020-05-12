@@ -5,7 +5,7 @@ var Atividade = require('../models/Atividade');
 
 router.route('/')
     /**
-     * post localhost:8080/atividade 
+     * post exemplo localhost:8080/atividade 
     {
 	    "_id": "EY010",
 	    "tipo": "I",
@@ -20,10 +20,10 @@ router.route('/')
             atividade.criar(_id, nome, tipo, valor);
             atividade.save((erro, atividade)=>{
                 if (!erro) res.status(201).json({ sucesso: true, messagem: "Atividade salva com sucesso.", atividade });
-                else res.status(400).json({ sucesso: false, messagem: erro });
+                else res.status(400).json({ sucesso: false, messagem: erro});
             })
         } catch (erro) {
-            res.status(400).json({ sucesso: false, messagem: erro });
+            res.status(401).json({ sucesso: false, messagem: erro});
         }
     })
     .get((req, res) => {
