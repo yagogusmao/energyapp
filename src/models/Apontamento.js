@@ -3,7 +3,7 @@ const Schema = moongose.Schema;
 const Atividade = require('../models/Atividade');
 
 const ApontamentoSchema = new Schema({
-    tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "OPERACIONAL", "PERDAS", "LINHAVIVA"], required: true },
+    tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHAVIVA"], required: true },
     pessoa: {
         supervisor: { type: String, required: true },
         tecnicoEnergisa: String,
