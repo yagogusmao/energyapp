@@ -37,6 +37,10 @@ const AtividadeController = require('./src/controllers/AtividadeController');
 app.use('/atividade', AtividadeController)
 const FuncionarioController = require('./src/controllers/FuncionarioController');
 app.use('/funcionario', FuncionarioController)
+const VeiculoController = require('./src/controllers/VeiculoController');
+app.use('/veiculo', VeiculoController)
+const EquipeController = require('./src/controllers/EquipeController');
+app.use('/equipe', EquipeController)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

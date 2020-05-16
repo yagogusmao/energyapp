@@ -76,7 +76,7 @@ const validarAtividades = (atividades) => {
     return Promise.all(promessas).then(promessaAtividades => {
         if (!promessaAtividades.includes(null)) {
             let total = 0;
-            promessaAtividades.forEach((atividade, i) => { total += atividade.valor * atividades[i].quantidade })
+            promessaAtividades.forEach(atividade => { total += atividade.valor * atividade.quantidade })
             return total;
         } else {
             let str = "";
