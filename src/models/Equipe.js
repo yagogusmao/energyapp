@@ -17,7 +17,7 @@ const EquipeSchema = new Schema({
 EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo) {
     if (funcionarios.length < 4) throw "Insira ao menos 4 funcionários";
     try {
-        return await Promise.all([validarVeiculo(veiculo), validarFuncionarios(funcionarios)]).then(async promessasResolvidas => {
+        return await Promise.all([validarVeiculo(veiculo), validarFuncionarios(funcionarios, _id)]).then(async promessasResolvidas => {
             const Funcionario = require('./Funcionario');
             const [veiculo, funcionarios] = promessasResolvidas;
             this.funcionarios = new Map();
@@ -37,14 +37,14 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
     } catch (erro) { throw erro; }
 }
 
-const validarFuncionarios = async (funcionarios) => {
+const validarFuncionarios = async (funcionarios, _id) => {
     const Funcionario = require('./Funcionario');
     return await Promise.all(funcionarios.map(funcionario => Funcionario.findById(funcionario))).then(promessaFuncionarios => {
         if (!promessaFuncionarios.includes(null)) {
-            if (validarFuncionariosEquipe(promessaFuncionarios)) return promessaFuncionarios;
+            if (validarFuncionariosEquipe(promessaFuncionarios, _id)) return promessaFuncionarios;
             else throw `O(s) funcionário(s): ${
                 promessaFuncionarios.reduce((acumulado, funcionario) => {
-                    if (funcionario.temEquipe()) return acumulado += `${funcionario.nome}, `;
+                    if (funcionario.temEquipe(_id)) return acumulado += `${funcionario.nome}, `;
                     else return acumulado;
                 }, "")
             }já possuem equipe.`;
@@ -57,31 +57,67 @@ const validarFuncionarios = async (funcionarios) => {
     });
 }
 
-const validarFuncionariosEquipe = (funcionarios) => {
+const validarFuncionariosEquipe = (funcionarios, equipe) => {
     let flag = true;
-    funcionarios.forEach(funcionario => { if (funcionario.temEquipe()) flag = false })
+    funcionarios.forEach(funcionario => { 
+        if (funcionario.temEquipe(equipe)) flag = false })
     return flag;
 }
 
 const validarVeiculo = async (placa) => {
     if (placa === undefined) return;
     return await Veiculo.findById(placa).then(veiculo => {
-        if (veiculo) return placa;
-        else throw "Veículo não encontrado.";
+        if (veiculo) {
+            if (veiculo.equipe !== "") return placa;
+            else throw "Veículo já está sendo usado por uma equipe.";
+        } else throw "Veículo não encontrado.";
     })
 }
 
-EquipeSchema.methods.atualizarVeiculo = function atualizarVeiculo(veiculo){
+EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo){
     if(veiculo === undefined){
-        Veiculo.findById(this.veiculo).then(veiculo => veiculo.retirarEquipe());
+        await Veiculo.findByIdAndUpdate(this.veiculo, {equipe: ""}).then(veiculo => {
+            this.veiculo = "";
+            this.status = "SEM VEICULO";
+        })
+    } else {
+        await Veiculo.findById(veiculo).then(async veiculo => {
+            if (veiculo) {
+                if (veiculo.equipe === "") {
+                    veiculo.equipe = this._id;
+                    if (this.status === "SEM VEICULO") this.status = "OK";
+                    this.veiculo = veiculo._id;
+                    await veiculo.save()
+                } else throw "Veículo já está sendo usado por uma equipe.";
+            } else throw "Veículo não encontrado.";
+        })
     }
+}
+
+EquipeSchema.methods.retirarFuncionario = async function retirarFuncionario(funcionario){
+    if (this.funcionarios.has(funcionario)){
+        const Funcionario = require('./Funcionario');
+        await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: "" }).then(funcionario => {
+            this.funcionarios.delete(funcionario);
+        });
+    } else throw "Funcionário não pertence a esta equipe";
+}
+
+EquipeSchema.methods.atualizarFuncionarios = async function atualizarFuncionarios(funcionarios){
+    return validarFuncionarios(funcionarios).then(funcionarios => {
+        this.funcionarios = new Map();
+        funcionarios.forEach(async funcionario => {
+            this.funcionarios.set(funcionario._id, { nome: funcionario.nome, cpf: funcionario.cpf, cargo: funcionario.cargo })
+            await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: _id });
+        })
+    })
 }
 
 EquipeSchema.methods.temVeiculo = function temVeiculo() {
     if (this.veiculo !== null && this.veiculo !== undefined && this.veiculo !== "") {
         return Veiculo.findById(this.veiculo).then(veiculo => {
             if (veiculo) return true;
-            else throw "O veículo desta equipe existe, mas não foi encontrado."
+            else throw "O veículo desta equipe existe, mas não foi encontrado.";
         })
     } else return false;
 }

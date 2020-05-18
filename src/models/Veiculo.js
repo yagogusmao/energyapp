@@ -34,10 +34,6 @@ const validarEquipe = (_id) => {
     })
 }
 
-VeiculoSchema.methods.retirarEquipe = function retirarEquipe(){
-    this.equipe = "";
-}
-
 VeiculoSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
     this.apontamentos.push(_id);
 }
