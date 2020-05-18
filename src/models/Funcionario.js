@@ -41,4 +41,8 @@ FuncionarioSchema.methods.temEquipe = function temEquipe() {
     return true;
 }
 
+FuncionarioSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
+    this.apontamentos.push(_id);
+}
+
 module.exports = moongose.model('Funcionario', FuncionarioSchema);

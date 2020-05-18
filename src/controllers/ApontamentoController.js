@@ -9,14 +9,13 @@ router.route('/')
     /**
      * post exemplo localhost:8080/apontamento
     {
-        "tipo": "CONSTRUCAO", 
+        "tipo": "CONSTRUCAO",
         "pessoaSupervisor": "Yago",
-        "pessoaEncarregado": "Erik", 
-        "veiculoPlaca": "MOI3131", 
-        "veiculoKmInicio": 123456, 
-        "veiculoSi": "qqrcoisa",
-        "equipe": "Alpha", 
-        "cidade": "Juazeirinho", 
+        "pessoaEncarregado": "Erik",
+        "veiculo": "MOI3131",
+        "si": "qqrcoisa",
+        "equipe": "Alpha",
+        "cidade": "Juazeirinho",
         "endereco": "Praça da igreja",
         "localSaida": "Energy CG"
     }
@@ -24,16 +23,15 @@ router.route('/')
 
     .post((req, res) => {
         try {
-            const { tipo, pessoaSupervisor, pessoaEncarregado, veiculoPlaca, veiculoKmInicio, veiculoSi, equipe, cidade, endereco, localSaida } = req.body;
+            const { tipo, pessoaSupervisor, pessoaEncarregado, veiculo, si, equipe, cidade, endereco, localSaida } = req.body;
             let apontamento = new Apontamento();
-            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, veiculoPlaca, veiculoKmInicio, veiculoSi, equipe, cidade, endereco, localSaida);
-            apontamento.save((erro, apontamento) => {
-                if (!erro) res.status(201).json({ sucesso: true, messagem: "Apontamento criado com sucesso.", apontamento });
-                else res.status(400).json({ sucesso: false, erro: erro.message });
-            })
-        } catch (erro) {
-            res.status(400).json({ sucess: false, erro: erro.message })
-        }
+            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, veiculo, si, equipe, cidade, endereco, localSaida).then(() => {
+                apontamento.save((erro, apontamento) => {
+                    if (!erro) res.status(201).json({ sucesso: true, messagem: "Apontamento criado com sucesso.", apontamento });
+                    else res.status(400).json({ sucesso: false, erro: erro.message });
+                })
+            }).catch(erro => { res.status(400).json({ sucesso: false, erro: erro + "" }); })
+        } catch (erro) { res.status(400).json({ sucess: false, erro: erro + "" }) }
     })
 
     /**
@@ -97,10 +95,10 @@ router.route('/porTempo')
             }
         }).then(apontamentos => {
             let total = apontamentos.reduce((acumulado, apontamento) => {
-                if(apontamento.status === "FINALIZADO") return acumulado + apontamento.lucro;
+                if (apontamento.status === "FINALIZADO") return acumulado + apontamento.lucro;
                 else return acumulado;
             }, 0)
-            res.status(200).json({apontamentos, lucro: total})
+            res.status(200).json({ apontamentos, lucro: total })
         })
     })
 

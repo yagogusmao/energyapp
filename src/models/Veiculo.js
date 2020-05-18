@@ -8,6 +8,7 @@ const VeiculoSchema = new Schema({
     numeracao: { type: String, required: true },
     kilometragem: { type: Number, required: true },
     modelo: { type: String, enum: ['HILUX', 'STRADA', 'CAMINHAO'], required: true },
+    status: {type: String, enum: ['OK', 'OCUPADO', 'QUEBRADO'], required: true },
     apontamentos: [String],
     equipe: String
 });
@@ -17,6 +18,7 @@ VeiculoSchema.methods.criar = function criar(_id, numeracao, kilometragem, model
     this.numeracao = numeracao;
     this.kilometragem = kilometragem;
     this.modelo = modelo;
+    this.status = 'OK';
     if (equipe !== undefined & equipe !== null) 
         validarEquipe(equipe).then(() => this.equipe = equipe).catch(erro => {throw erro});
 }
@@ -30,6 +32,14 @@ const validarEquipe = (_id) => {
             }).catch(erro => {throw erro});
         } else throw "Veículo não encontrado."
     })
+}
+
+VeiculoSchema.methods.retirarEquipe = function retirarEquipe(){
+    this.equipe = "";
+}
+
+VeiculoSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
+    this.apontamentos.push(_id);
 }
 
 module.exports = moongose.model('Veiculo', VeiculoSchema);
