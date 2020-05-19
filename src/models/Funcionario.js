@@ -37,11 +37,9 @@ FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo,
 }
 
 FuncionarioSchema.methods.temEquipe = function temEquipe(equipe) {
-    console.log(equipe, this.equipe)
     if (this.equipe === equipe) return false; 
     else if (this.equipe !== undefined && this.equipe !== "") return true;
     else return false;
-
 }
 
 FuncionarioSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {

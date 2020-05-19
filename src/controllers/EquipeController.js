@@ -56,13 +56,13 @@ router.route('/veiculo')
 router.route('/funcionario')
     .put((req, res) => {
         try {
-            const { _id, funcionarios } = req.body;
+            const { _id, funcionario } = req.body;
             Equipe.findById(_id).then(equipe => {
                 if (equipe){
-                    equipe.atualizarFuncionarios(funcionarios).then(() => {
+                    equipe.adicionarFuncionario(funcionario).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
-                            else res.status(200).json({ sucesso: true, mensagem: "Funcionários atualizados com sucesso.", equipe });
+                            else res.status(200).json({ sucesso: true, mensagem: "Funcionário adicionado com sucesso.", equipe });
                         })
                     }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
                 } else res.status(400).json({ sucesso: false, mensagem: "Equipe não encontrada." });
