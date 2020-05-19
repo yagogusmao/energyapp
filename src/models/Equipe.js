@@ -76,7 +76,7 @@ const validarVeiculo = async (placa) => {
 
 EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo){
     if(veiculo === undefined){
-        await Veiculo.findByIdAndUpdate(this.veiculo, {equipe: ""}).then(veiculo => {
+        await Veiculo.findByIdAndUpdate(this.veiculo, {equipe: ""}).then(() => {
             this.veiculo = "";
             this.status = "SEM VEICULO";
         })
@@ -97,9 +97,7 @@ EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo)
 EquipeSchema.methods.retirarFuncionario = async function retirarFuncionario(funcionario){
     if (this.funcionarios.has(funcionario)){
         const Funcionario = require('./Funcionario');
-        await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: "" }).then(funcionario => {
-            this.funcionarios.delete(funcionario);
-        });
+        await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: "" }).then(funcionario => this.funcionarios.delete(funcionario));
     } else throw "Funcionário não pertence a esta equipe";
 }
 
