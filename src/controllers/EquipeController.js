@@ -39,10 +39,10 @@ router.route('/')
 router.route('/veiculo')
     .put((req, res) => {
         try {
-            const { _idEquipe, _idVeiculo } = req.body;
-            Equipe.findById(_idEquipe).then(equipe => {
+            const { _id, veiculo } = req.body;
+            Equipe.findById(_id).then(equipe => {
                 if (equipe){
-                    equipe.atualizarVeiculo(_idVeiculo).then(() => {
+                    equipe.atualizarVeiculo(veiculo).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
                             else res.status(200).json({ sucesso: true, mensagem: "Veículo da equipe atualizado com sucesso.", equipe });

@@ -19,6 +19,7 @@ VeiculoSchema.methods.criar = function criar(_id, numeracao, kilometragem, model
     this.kilometragem = kilometragem;
     this.modelo = modelo;
     this.status = 'OK';
+    this.equipe = "";
     if (equipe !== undefined & equipe !== null) 
         validarEquipe(equipe).then(() => this.equipe = equipe).catch(erro => {throw erro});
 }

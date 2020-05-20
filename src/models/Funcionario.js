@@ -34,6 +34,7 @@ FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo,
     this.lotacao = lotacao;
     this.data.inicio = new Date(dataInicio);
     this.cargo = cargo;
+    this.equipe = "";
 }
 
 FuncionarioSchema.methods.temEquipe = function temEquipe(equipe) {

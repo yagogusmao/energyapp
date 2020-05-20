@@ -6,18 +6,33 @@ const Veiculo = require('./Veiculo');
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
     tipo: { type: String, enum: ['MANUTENCAO/CONSTRUCAO', 'PODA', 'OP'], required: true },
-    funcionarios: { type: Map, required: true },//[{ _id: { type: String, required: true } }],
+    funcionarios: { type: Map, required: true }, //[{ _id: { type: String, required: true } }],
     local: { type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA'], required: true },
-    status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADO'], required: true },
+    status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADO', 'SEM FUNCIONARIOS'], required: true },
     veiculo: String,
     apontamentos: [String],
     meta: Number,
 });
 
 EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo) {
-    if (funcionarios.length < 4) throw "Insira ao menos 4 funcionários";
     try {
-        return await Promise.all([validarVeiculo(veiculo), validarFuncionarios(funcionarios, _id)]).then(async promessasResolvidas => {
+        if (funcionarios === undefined) {
+            return await validarVeiculo(veiculo).then(async veiculo => {
+                this.funcionarios = new Map();
+                this._id = _id;
+                this.tipo = tipo;
+                this.local = local;
+                if (veiculo !== undefined) {
+                    this.validarEquipe();
+                    this.veiculo = veiculo;
+                    await Veiculo.findByIdAndUpdate(veiculo, { equipe: _id });
+                } else {
+                    this.veiculo = "";
+                    this.status = 'SEM VEICULO';
+                }
+                console.log(this)
+            }).catch(erro => { throw erro });
+        } else return await Promise.all([validarVeiculo(veiculo), validarFuncionarios(funcionarios, _id)]).then(async promessasResolvidas => {
             const Funcionario = require('./Funcionario');
             const [veiculo, funcionarios] = promessasResolvidas;
             this.funcionarios = new Map();
@@ -25,16 +40,85 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                 this.funcionarios.set(funcionario._id, { nome: funcionario.nome, cpf: funcionario.cpf, cargo: funcionario.cargo })
                 await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: _id });
             })
-            if (promessasResolvidas[0] !== undefined) {
-                this.veiculo = veiculo;
-                this.status = 'OK';
-                await Veiculo.findByIdAndUpdate(veiculo, { equipe: _id });
-            } else this.status = 'SEM VEICULO';
             this._id = _id;
             this.tipo = tipo;
             this.local = local;
+            if (veiculo !== undefined) {
+                this.validarEquipe();
+                this.veiculo = veiculo;
+                await Veiculo.findByIdAndUpdate(veiculo, { equipe: _id });
+            } else {
+                this.veiculo = "";
+                this.status = 'SEM VEICULO';
+            }
         }).catch(erro => { throw erro });
     } catch (erro) { throw erro; }
+}
+
+EquipeSchema.methods.validarEquipe = async function validarEquipe() {
+    if (this.funcionarios === null || this.funcionarios === undefined || this.funcionarios === {}) this.status = 'SEM FUNCIONARIOS';
+    else {
+        if (Array.from(this.funcionarios).length >= 4) {
+            if (this.veiculo !== "") this.status = 'OK';
+            else this.status = 'SEM VEICULO';
+        } else this.status = 'SEM FUNCIONARIOS';
+    }
+}
+
+EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo) {
+    if (veiculo === undefined) {
+        await Veiculo.findByIdAndUpdate(this.veiculo, { equipe: "" }).then(() => {
+            this.veiculo = "";
+            this.status = "SEM VEICULO";
+        })
+    } else {
+        await Veiculo.findById(veiculo).then(async veiculo => {
+            if (veiculo) {
+                if (veiculo.equipe === "") {
+                    veiculo.equipe = this._id;
+                    if (this.status === "SEM VEICULO") this.status = "OK";
+                    this.veiculo = veiculo._id;
+                    await veiculo.save()
+                } else throw "Veículo já está sendo usado por uma equipe.";
+            } else throw "Veículo não encontrado.";
+        })
+    }
+}
+
+EquipeSchema.methods.retirarFuncionario = async function retirarFuncionario(funcionario) {
+    if (this.funcionarios.has(funcionario)) {
+        const Funcionario = require('./Funcionario');
+        await Funcionario.findByIdAndUpdate(funcionario, { equipe: "" }).then(funcionario => {
+            this.funcionarios.delete(funcionario._id)
+            this.validarEquipe();
+        });
+    } else throw "Funcionário não pertence a esta equipe";
+}
+
+EquipeSchema.methods.adicionarFuncionario = async function adicionarFuncionario(funcionario) {
+    return validarFuncionarios([funcionario], this._id).then(async funcionarioPromessa => {
+        const [funcionario] = funcionarioPromessa;
+        const Funcionario = require('./Funcionario');
+        if (!this.funcionarios.has(funcionario._id)) {
+            await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: this._id }).then((funcionario) => {
+                this.funcionarios.set(funcionario._id, { nome: funcionario.nome, cpf: funcionario.cpf, cargo: funcionario.cargo })
+                this.validarEquipe();
+            });
+        } else throw "Funcionário já pertence a esta equipe.";
+    }).catch(erro => { throw erro })
+}
+
+EquipeSchema.methods.temVeiculo = function temVeiculo() {
+    if (this.veiculo !== null && this.veiculo !== undefined && this.veiculo !== "") {
+        return Veiculo.findById(this.veiculo).then(veiculo => {
+            if (veiculo) return true;
+            else throw "O veículo desta equipe existe, mas não foi encontrado.";
+        })
+    } else return false;
+}
+
+EquipeSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
+    this.apontamentos.push(_id);
 }
 
 const validarFuncionarios = async (funcionarios, _id) => {
@@ -69,64 +153,10 @@ const validarVeiculo = async (placa) => {
     if (placa === undefined) return;
     return await Veiculo.findById(placa).then(veiculo => {
         if (veiculo) {
-            if (veiculo.equipe !== "") return placa;
+            if (veiculo.equipe === "" || veiculo.equipe === undefined) return placa;
             else throw "Veículo já está sendo usado por uma equipe.";
         } else throw "Veículo não encontrado.";
     })
-}
-
-EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo) {
-    if (veiculo === undefined) {
-        await Veiculo.findByIdAndUpdate(this.veiculo, { equipe: "" }).then(() => {
-            this.veiculo = "";
-            this.status = "SEM VEICULO";
-        })
-    } else {
-        await Veiculo.findById(veiculo).then(async veiculo => {
-            if (veiculo) {
-                if (veiculo.equipe === "") {
-                    veiculo.equipe = this._id;
-                    if (this.status === "SEM VEICULO") this.status = "OK";
-                    this.veiculo = veiculo._id;
-                    await veiculo.save()
-                } else throw "Veículo já está sendo usado por uma equipe.";
-            } else throw "Veículo não encontrado.";
-        })
-    }
-}
-
-EquipeSchema.methods.retirarFuncionario = async function retirarFuncionario(funcionario) {
-    if (this.funcionarios.has(funcionario)) {
-        const Funcionario = require('./Funcionario');
-        await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: "" }).then(funcionario => this.funcionarios.delete(funcionario));
-    } else throw "Funcionário não pertence a esta equipe";
-}
-
-EquipeSchema.methods.adicionarFuncionario = async function adicionarFuncionario(funcionario) {
-    return validarFuncionarios([funcionario], this._id).then(async funcionario => {
-        const Funcionario = require('./Funcionario');
-        if (!this.funcionarios.has(funcionario)) {
-            await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: this._id }).then(() => {
-                //console.log(this.funcionarios)
-                this.funcionarios.set(funcionario._id, { nome: funcionario.nome, cpf: funcionario.cpf, cargo: funcionario.cargo })
-                //console.log(this.funcionarios)
-            });
-        }
-        else throw "Funcionário já pertence a esta equipe.";
-    }).catch(erro => { throw erro })
-}
-
-EquipeSchema.methods.temVeiculo = function temVeiculo() {
-    if (this.veiculo !== null && this.veiculo !== undefined && this.veiculo !== "") {
-        return Veiculo.findById(this.veiculo).then(veiculo => {
-            if (veiculo) return true;
-            else throw "O veículo desta equipe existe, mas não foi encontrado.";
-        })
-    } else return false;
-}
-
-EquipeSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
-    this.apontamentos.push(_id);
 }
 
 module.exports = moongose.model('Equipe', EquipeSchema);
