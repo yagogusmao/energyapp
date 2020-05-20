@@ -2,13 +2,14 @@ const moongose = require('mongoose');
 const Schema = moongose.Schema;
 
 const Veiculo = require('./Veiculo');
+const Funcionario = require('./Funcionario');
 
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
     tipo: { type: String, enum: ['MANUTENCAO/CONSTRUCAO', 'PODA', 'OP'], required: true },
     funcionarios: { type: Map, required: true }, //[{ _id: { type: String, required: true } }],
     local: { type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA'], required: true },
-    status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADO', 'SEM FUNCIONARIOS'], required: true },
+    status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADA', 'SEM FUNCIONARIOS'], required: true },
     veiculo: String,
     apontamentos: [String],
     meta: Number,
@@ -72,6 +73,7 @@ EquipeSchema.methods.retirarVeiculo = async function retirarVeiculo() {
         })
     } else throw "Esta equipe não possui veículo.";
 }
+
 EquipeSchema.methods.adicionarVeiculo = async function adicionarVeiculo(veiculo) {
     if (this.veiculo === ""){
         await Veiculo.findById(veiculo).then(async veiculo => {
@@ -119,8 +121,25 @@ EquipeSchema.methods.temVeiculo = function temVeiculo() {
     } else return false;
 }
 
-EquipeSchema.methods.adicionarApontamento = function adicionarApontamento(_id) {
+EquipeSchema.methods.adicionarApontamento = async function adicionarApontamento(_id, veiculoKmFim) {
+    adicionarApontamentoFuncionarios(_id, this);
+    adicionarApontamentoVeiculo(_id, this, veiculoKmFim);
     this.apontamentos.push(_id);
+}
+
+const adicionarApontamentoVeiculo = async (_id, equipe, veiculoKmFim) => {
+    let veiculo = await Veiculo.findById(equipe.veiculo);
+    veiculo.adicionarApontamento(_id);
+    veiculo.kilometragem = veiculoKmFim;
+    await veiculo.save();
+}
+
+const adicionarApontamentoFuncionarios = async (_id, equipe) => {
+    let funcionarios = await Promise.all(Array.from(equipe.funcionarios).map(([key, value]) => Funcionario.findById(key)));
+    funcionarios.forEach(async funcionario => {
+        funcionario.adicionarApontamento(_id);
+        await funcionario.save();
+    })
 }
 
 const validarFuncionarios = async (funcionarios, _id) => {

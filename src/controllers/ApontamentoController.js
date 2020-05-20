@@ -23,15 +23,15 @@ router.route('/')
 
     .post((req, res) => {
         try {
-            const { tipo, pessoaSupervisor, pessoaEncarregado, veiculo, si, equipe, cidade, endereco, localSaida } = req.body;
+            const { tipo, pessoaSupervisor, pessoaEncarregado, si, equipe, cidade, endereco, localSaida } = req.body;
             let apontamento = new Apontamento();
-            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, veiculo, si, equipe, cidade, endereco, localSaida).then(() => {
+            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, si, equipe, cidade, endereco, localSaida).then(() => {
                 apontamento.save((erro, apontamento) => {
                     if (!erro) res.status(201).json({ sucesso: true, messagem: "Apontamento criado com sucesso.", apontamento });
-                    else res.status(400).json({ sucesso: false, erro: erro.message });
+                    else res.status(400).json({ sucesso: false, messagem: erro.message });
                 })
-            }).catch(erro => { res.status(400).json({ sucesso: false, erro: erro + "" }); })
-        } catch (erro) { res.status(400).json({ sucess: false, erro: erro + "" }) }
+            }).catch(erro => { res.status(400).json({ sucesso: false, messagem: erro + "" }); })
+        } catch (erro) { res.status(400).json({ sucess: false, messagem: erro + "" }) }
     })
 
     /**
@@ -60,14 +60,14 @@ router.route('/')
                         apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades).then(() => {
                             apontamento.save((erro, apontamento) => {
                                 if (!erro) res.status(200).json({ sucesso: true, messagem: "Apontamento finalizado com sucesso.", apontamento });
-                                else res.status(400).json({ sucesso: false, erro: erro.message });
+                                else res.status(400).json({ sucesso: false, mensagem: erro.message});
                             })
-                        }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
-                    } else res.status(400).json({ sucesso: false, erro: "Apontamento já finalizado." })
-                } else res.status(400).json({ sucesso: false, erro: "Apontamento não encontrado." });
-            }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
+                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + ""}))
+                    } else res.status(400).json({ sucesso: false, mensagem: "Apontamento já finalizado." })
+                } else res.status(400).json({ sucesso: false, mensagem: "Apontamento não encontrado." });
+            }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }))
         } catch (erro) {
-            res.status(400).json({ sucesso: false, erro: erro.message })
+            res.status(400).json({ sucesso: false, mensagem: erro + "" })
         }
     })
 
@@ -98,7 +98,7 @@ router.route('/porTempo')
                 if (apontamento.status === "FINALIZADO") return acumulado + apontamento.lucro;
                 else return acumulado;
             }, 0)
-            res.status(200).json({ apontamentos, lucro: total })
+            res.status(200).json({ lucro: total, quantidadeApontamentos: apontamentos.length, mediaLucro: total/apontamentos.length, apontamentos })
         })
     })
 
