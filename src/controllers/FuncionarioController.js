@@ -19,6 +19,6 @@ router.route('/')
         }
     })
     .get((req, res) => {
-        Funcionario.find().then(funcionarios => res.status(200).json({sucesso: true, mensagem: "Funcionários cadastrados no sistema", funcionarios}))
+        Funcionario.find().then(funcionarios => res.status(200).json({ sucesso: true, mensagem: "Funcionários cadastrados no sistema", funcionarios }))
     })
 module.exports = router;

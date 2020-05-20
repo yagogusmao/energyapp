@@ -15,11 +15,11 @@ router.route('/')
                 else res.status(201).json({ sucesso: true, mensagem: "Veículo criado com sucesso.", veiculo });
             })
         } catch (erro) {
-            res.status(400).json({ sucesso: false, mensagem: erro})
+            res.status(400).json({ sucesso: false, mensagem: erro })
         }
     })
     .get((req, res) => {
-        Veiculo.find().then(veiculos => res.status(200).json({sucesso: true, mensagem: "Veículos cadastrados no sistema", veiculos}))
+        Veiculo.find().then(veiculos => res.status(200).json({ sucesso: true, mensagem: "Veículos cadastrados no sistema", veiculos }))
     })
 
 module.exports = router;

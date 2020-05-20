@@ -30,7 +30,6 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                     this.veiculo = "";
                     this.status = 'SEM VEICULO';
                 }
-                console.log(this)
             }).catch(erro => { throw erro });
         } else return await Promise.all([validarVeiculo(veiculo), validarFuncionarios(funcionarios, _id)]).then(async promessasResolvidas => {
             const Funcionario = require('./Funcionario');

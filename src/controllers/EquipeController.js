@@ -20,7 +20,7 @@ router.route('/')
         try {
             const { _id, tipo, funcionarios, local, veiculo } = req.body;
             Equipe.findById(_id).then(equipe => {
-                if (!equipe){
+                if (!equipe) {
                     let equipe = new Equipe();
                     equipe.criar(_id, tipo, funcionarios, local, veiculo).then(() => {
                         equipe.save((erro, equipe) => {
@@ -41,7 +41,7 @@ router.route('/veiculo')
         try {
             const { _id, veiculo } = req.body;
             Equipe.findById(_id).then(equipe => {
-                if (equipe){
+                if (equipe) {
                     equipe.atualizarVeiculo(veiculo).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
@@ -58,7 +58,7 @@ router.route('/funcionario')
         try {
             const { _id, funcionario } = req.body;
             Equipe.findById(_id).then(equipe => {
-                if (equipe){
+                if (equipe) {
                     equipe.adicionarFuncionario(funcionario).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
@@ -73,7 +73,7 @@ router.route('/funcionario')
         try {
             const { _id, funcionario } = queryString.parse(req._parsedUrl.query);
             Equipe.findById(_id).then(equipe => {
-                if (equipe){
+                if (equipe) {
                     equipe.retirarFuncionario(funcionario).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })

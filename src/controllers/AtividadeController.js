@@ -18,12 +18,12 @@ router.route('/')
             const { _id, nome, tipo, valor } = req.body;
             let atividade = new Atividade();
             atividade.criar(_id, nome, tipo, valor);
-            atividade.save((erro, atividade)=>{
+            atividade.save((erro, atividade) => {
                 if (!erro) res.status(201).json({ sucesso: true, messagem: "Atividade salva com sucesso.", atividade });
-                else res.status(400).json({ sucesso: false, messagem: erro});
+                else res.status(400).json({ sucesso: false, messagem: erro });
             })
         } catch (erro) {
-            res.status(401).json({ sucesso: false, messagem: erro});
+            res.status(401).json({ sucesso: false, messagem: erro });
         }
     })
     .get((req, res) => {
