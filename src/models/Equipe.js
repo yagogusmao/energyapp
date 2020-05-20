@@ -64,13 +64,16 @@ EquipeSchema.methods.validarEquipe = async function validarEquipe() {
     }
 }
 
-EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo) {
-    if (veiculo === undefined) {
+EquipeSchema.methods.retirarVeiculo = async function retirarVeiculo() {
+    if (this.veiculo !== "") {
         await Veiculo.findByIdAndUpdate(this.veiculo, { equipe: "" }).then(() => {
             this.veiculo = "";
             this.status = "SEM VEICULO";
         })
-    } else {
+    } else throw "Esta equipe não possui veículo.";
+}
+EquipeSchema.methods.adicionarVeiculo = async function adicionarVeiculo(veiculo) {
+    if (this.veiculo === ""){
         await Veiculo.findById(veiculo).then(async veiculo => {
             if (veiculo) {
                 if (veiculo.equipe === "") {
@@ -81,7 +84,7 @@ EquipeSchema.methods.atualizarVeiculo = async function atualizarVeiculo(veiculo)
                 } else throw "Veículo já está sendo usado por uma equipe.";
             } else throw "Veículo não encontrado.";
         })
-    }
+    } else throw "Esta equipe já possui veículo.";
 }
 
 EquipeSchema.methods.retirarFuncionario = async function retirarFuncionario(funcionario) {

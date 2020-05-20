@@ -33,7 +33,7 @@ router.route('/')
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
-        Equipe.find().then(equipes => res.status(200).json({ sucesso: true, mensagem: "Equipe cadastrados no sistema.", equipes }))
+        Equipe.find().then(equipes => res.status(200).json({ sucesso: true, mensagem: "Equipe cadastradas no sistema.", equipes }))
     })
 
 router.route('/veiculo')
@@ -42,10 +42,25 @@ router.route('/veiculo')
             const { _id, veiculo } = req.body;
             Equipe.findById(_id).then(equipe => {
                 if (equipe) {
-                    equipe.atualizarVeiculo(veiculo).then(() => {
+                    equipe.adicionarVeiculo(veiculo).then(() => {
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
-                            else res.status(200).json({ sucesso: true, mensagem: "Veículo da equipe atualizado com sucesso.", equipe });
+                            else res.status(200).json({ sucesso: true, mensagem: "Veículo da equipe adicionado com sucesso.", equipe });
+                        })
+                    }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                } else res.status(400).json({ sucesso: false, mensagem: "Equipe não encontrada." });
+            })
+        } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+    })
+    .delete((req, res) => {
+        try {
+            const { _id } = queryString.parse(req._parsedUrl.query);
+            Equipe.findById(_id).then(equipe => {
+                if (equipe) {
+                    equipe.retirarVeiculo().then(() => {
+                        equipe.save((erro, equipe) => {
+                            if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
+                            else res.status(200).json({ sucesso: true, mensagem: "Veículo da equipe retirado com sucesso.", equipe });
                         })
                     }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
                 } else res.status(400).json({ sucesso: false, mensagem: "Equipe não encontrada." });
