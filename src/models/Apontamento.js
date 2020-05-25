@@ -106,8 +106,8 @@ const liberarEquipe = async (equipe, apontamento, veiculoKmFim) => {
     })
 }
 
-const validarAtividades = (atividades) => {
-    return Promise.all(atividades.map(atividade => Atividade.findById(atividade._id)))
+const validarAtividades = async (atividades) => {
+    return await Promise.all(atividades.map(atividade => Atividade.findById(atividade._id)))
         .then(promessaAtividades => {
             if (!promessaAtividades.includes(null)) return promessaAtividades.reduce((acumulado, atividade, i) => acumulado += atividade.valor * atividades[i].quantidade, 0);
             else throw `A(s) atividade(s): ${promessaAtividades.reduce((acumulado, atividade, i) => { if (atividade === null) return acumulado += (atividades[i]._id + " ") }, "")}não estão no sistema.`;
