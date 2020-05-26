@@ -41,7 +41,9 @@ const VeiculoController = require('./src/controllers/VeiculoController');
 app.use('/veiculo', VeiculoController)
 const EquipeController = require('./src/controllers/EquipeController');
 app.use('/equipe', EquipeController)
-const MaterialController = require('./src/controllers/MaterialController');
+const AlmoxarifadoController = require('./src/controllers/AlmoxarifadoController');
+app.use('/almoxarifado', AlmoxarifadoController)
+const MaterialController = require('./src/controllers/MaterialController')
 app.use('/material', MaterialController)
 
 // catch 404 and forward to error handler
