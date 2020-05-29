@@ -39,7 +39,8 @@ const ApontamentoSchema = new Schema({
     status: { type: String, enum: ["INICIADO", "FINALIZADO"], required: true }
 });
 
-ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, si, equipe, cidade, endereco, localSaida) {
+ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, si, equipe,
+    cidade, endereco, localSaida) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
             const veiculo = await Veiculo.findById(equipe.veiculo);
@@ -63,17 +64,18 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
 
 ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades) {
     try {
-        return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim), validarAtividades(atividades)]).then(promessas => {
-            const [equipe, lucro] = promessas;
-            this.lucro = lucro;
-            this.pessoa.tecnicoEnergisa = tecnicoEnergisa;
-            this.veiculo.kilometragem.fim = veiculoKmFim;
-            this.veiculo.kilometragem.total = this.veiculo.kilometragem.fim - this.veiculo.kilometragem.inicio;
-            this.PgCp = PgCp;
-            this.hora.fim = new Date();
-            this.status = "FINALIZADO";
-            this.atividades = atividades;
-        }).catch(erro => { throw erro });
+        return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim), validarAtividades(atividades)])
+            .then(promessas => {
+                const [equipe, lucro] = promessas;
+                this.lucro = lucro;
+                this.pessoa.tecnicoEnergisa = tecnicoEnergisa;
+                this.veiculo.kilometragem.fim = veiculoKmFim;
+                this.veiculo.kilometragem.total = this.veiculo.kilometragem.fim - this.veiculo.kilometragem.inicio;
+                this.PgCp = PgCp;
+                this.hora.fim = new Date();
+                this.status = "FINALIZADO";
+                this.atividades = atividades;
+            }).catch(erro => { throw erro });
     } catch (erro) { throw erro }
 }
 
@@ -100,7 +102,8 @@ const liberarEquipe = async (equipe, apontamento, veiculoKmFim) => {
                     equipe.adicionarApontamento(apontamento._id, veiculoKmFim);
                     await equipe.save();
                     return equipe;
-                } else throw `Kilometragem inválida. A kilometragem atual do veículo é ${apontamento.veiculo.kilometragem.inicio}`;
+                } else throw `Kilometragem inválida. A kilometragem atual do veículo é 
+                    ${apontamento.veiculo.kilometragem.inicio}`;
             } else throw `Equipe não está ocupada. O status da equipe é ${equipe.status}`;
         } else throw `Equipe não encontrada.`;
     })
@@ -109,8 +112,12 @@ const liberarEquipe = async (equipe, apontamento, veiculoKmFim) => {
 const validarAtividades = async (atividades) => {
     return await Promise.all(atividades.map(atividade => Atividade.findById(atividade._id)))
         .then(promessaAtividades => {
-            if (!promessaAtividades.includes(null)) return promessaAtividades.reduce((acumulado, atividade, i) => acumulado += atividade.valor * atividades[i].quantidade, 0);
-            else throw `A(s) atividade(s): ${promessaAtividades.reduce((acumulado, atividade, i) => { if (atividade === null) return acumulado += (atividades[i]._id + " ") }, "")}não estão no sistema.`;
+            if (!promessaAtividades.includes(null))
+                return promessaAtividades.reduce((acumulado, atividade, i) =>
+                    acumulado += atividade.valor * atividades[i].quantidade, 0);
+            else throw `A(s) atividade(s): ${promessaAtividades.reduce((acumulado, atividade, i) => {
+                if (atividade === null) return acumulado += (atividades[i]._id + " ")
+            }, "")}não estão no sistema.`;
         });
 }
 

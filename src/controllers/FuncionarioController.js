@@ -12,13 +12,15 @@ router.route('/')
             funcionario.criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio);
             funcionario.save((erro, funcionario) => {
                 if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
-                else res.status(201).json({ sucesso: true, mensagem: "Funcionário criado com sucesso.", funcionario });
+                else res.status(201).json({ sucesso: true, 
+                    mensagem: "Funcionário criado com sucesso.", funcionario });
             })
         } catch (erro) {
             res.status(400).json({ sucesso: false, mensagem: erro.message })
         }
     })
     .get((req, res) => {
-        Funcionario.find().then(funcionarios => res.status(200).json({ sucesso: true, mensagem: "Funcionários cadastrados no sistema", funcionarios }))
+        Funcionario.find().then(funcionarios => res.status(200).json({ sucesso: true, 
+            mensagem: "Funcionários cadastrados no sistema", funcionarios }))
     })
 module.exports = router;

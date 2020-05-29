@@ -28,11 +28,11 @@ AlmoxarifadoSchema.methods.retirar = function retirar(materialId, quantidade) {
     if (this.estoque.has(materialId)) {
         if (this.estoque.get(materialId) - quantidade < 0) throw "O material ainda não possui estoque.";
         else this.estoque.get(materialId) -= quantidade;
-    } else throw "O material não está no estoque.";
+    } else throw "Material não encontrado no estoque.";
 }
 
-AlmoxarifadoSchema.methods.verEstoque = function verEstoque() {
-    return Promise.all(Array.from(this.estoque).map(([chave, valor]) => Material.findById(chave)))
+AlmoxarifadoSchema.methods.verEstoque = async function verEstoque() {
+    return await Promise.all(Array.from(this.estoque).map(([chave, valor]) => Material.findById(chave)))
         .then(materiais => Array.from(this.estoque).map(([chave, valor], i) => {
             if (materiais[i]._id == chave)
                 return {
