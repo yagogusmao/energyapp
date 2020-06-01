@@ -15,8 +15,10 @@ router.route('/')
         })
     })
     .get((req, res) => {
-        Almoxarifado.find().then(almoxarifados => res.status(200).json({ sucesso: true, 
-            mensagem: "Almoxarifados cadastrados no sistema.", almoxarifados }));
+        Almoxarifado.find().then(almoxarifados => res.status(200).json({
+            sucesso: true,
+            mensagem: "Almoxarifados cadastrados no sistema.", almoxarifados
+        }));
     })
 
 router.route('/estoque')
@@ -24,8 +26,10 @@ router.route('/estoque')
         const { _id } = queryString.parse(req._parsedUrl.query);
         Almoxarifado.findById(_id).then(almoxarifado => {
             if (almoxarifado) almoxarifado.verEstoque()
-                .then(materiais => res.status(200).json({sucesso: true, 
-                    mensagem: "Estes são os materiais e quantidades no estoque.", materiais}))
+                .then(materiais => res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Estes são os materiais e quantidades no estoque.", materiais
+                }))
             else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
         })
     })
@@ -36,8 +40,10 @@ router.route('/estoque')
                 almoxarifado.adicionar(material, quantidade).then(() => {
                     almoxarifado.save((erro, almoxarifado) => {
                         if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
-                        else res.status(200).json({ sucesso: true, 
-                            mensagem: "Materiais adicionados ao estoque com sucesso", almoxarifado });
+                        else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                            sucesso: true,
+                            mensagem: "Materiais adicionados ao estoque com sucesso", materiais
+                        }))
                     })
                 }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
             } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
@@ -47,13 +53,17 @@ router.route('/estoque')
         const { _id, material, quantidade } = queryString.parse(req._parsedUrl.query);
         Almoxarifado.findById(_id).then(almoxarifado => {
             if (almoxarifado) {
-                almoxarifado.retirar(material, quantidade).then(() => {
-                    almoxarifado.save((erro, almoxarifado) => {
-                        if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
-                        else res.status(200).json({ sucesso: true, 
-                                mensagem: "Materiais retirados do estoque com sucesso", almoxarifado });
-                    })
-                }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                try {
+                    almoxarifado.retirar(material, quantidade).then(() => {
+                        almoxarifado.save((erro, almoxarifado) => {
+                            if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                            else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                sucesso: true,
+                                mensagem: "Materiais retirados do estoque com sucesso", materiais
+                            }))
+                        })
+                    }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
             } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
         })
     })

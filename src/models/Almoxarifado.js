@@ -17,8 +17,11 @@ AlmoxarifadoSchema.methods.criar = function criar(_id) {
 }
 
 AlmoxarifadoSchema.methods.adicionar = function adicionar(materialId, quantidade) {
-    if (this.estoque.has(materialId)) this.estoque.get(materialId) += quantidade;
-    else return Material.findById(materialId).then(material => {
+    if (this.estoque.has(materialId)) {
+        const novaQuantidade = quantidade + this.estoque.get(materialId);
+        this.estoque.set(materialId, novaQuantidade)
+        return Promise.resolve();
+    } else return Material.findById(materialId).then(material => {
         if (material) this.estoque.set(materialId, quantidade)
         else throw "Material não encontrado.";
     })
@@ -27,7 +30,11 @@ AlmoxarifadoSchema.methods.adicionar = function adicionar(materialId, quantidade
 AlmoxarifadoSchema.methods.retirar = function retirar(materialId, quantidade) {
     if (this.estoque.has(materialId)) {
         if (this.estoque.get(materialId) - quantidade < 0) throw "O material ainda não possui estoque.";
-        else this.estoque.get(materialId) -= quantidade;
+        else {
+            const novaQuantidade = this.estoque.get(materialId) - quantidade;
+            this.estoque.set(materialId, novaQuantidade)
+            return Promise.resolve();
+        };
     } else throw "Material não encontrado no estoque.";
 }
 
@@ -38,7 +45,8 @@ AlmoxarifadoSchema.methods.verEstoque = async function verEstoque() {
                 return {
                     _id: materiais[i]._id,
                     descricao: materiais[i].descricao,
-                    quantidade: valor
+                    quantidade: valor,
+                    unidadeMedida: materiais[i].unidadeMedida
                 }
         })
         )

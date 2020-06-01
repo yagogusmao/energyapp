@@ -17,8 +17,8 @@ router.route('/')
             if (descricaoClasse) pesquisa.descricaoClasse = { $regex: descricaoClasse, $options: 'i' };
             Material.find(pesquisa).then(materiais => res.status(200).json({sucesso: true,
                 mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais}))
-        } else Material.findById(_id).then(material => res.status(200).json({sucesso: true,
-            mensagem: "Material cadastrado no sistema.", material}))
+        } else Material.find({_id: _id}).then(materiais => res.status(200).json({sucesso: true,
+            mensagem: "Material cadastrado no sistema.", materiais}))
     })
 
 module.exports = router;
