@@ -8,7 +8,9 @@ const AlmoxarifadoSchema = new Schema({
         type: String, enum: ['CAMPINAGRANDE-EBO', 'CAMPINAGRANDE-EPB', 'JUAZEIRINHO-EPB',
             'SUME-EPB', 'ESPERANCA-EPB', 'SOLANEA-EPB', 'GUARABIRA-EPB'], required: true
     },
-    estoque: { type: Map, of: Number, required: true } //_id do material aponta pra a quantidade do material
+    estoque: { type: Map, of: Number, required: true }, //_id do material aponta pra a quantidade do material
+    entradas: [{ material: String, quantidade: Number, vemDe: String }],
+    saidas: [{ material: String, quantidade: Number, vaiPra: String }]
 });
 
 AlmoxarifadoSchema.methods.criar = function criar(_id) {
