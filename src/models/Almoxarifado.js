@@ -18,17 +18,20 @@ AlmoxarifadoSchema.methods.criar = function criar(_id) {
     this.estoque = new Map();
 }
 
-AlmoxarifadoSchema.methods.adicionar = function adicionar(materialId, quantidade, vemDe) {
-    if (this.estoque.has(materialId)) {
-        const novaQuantidade = quantidade + this.estoque.get(materialId);
-        this.estoque.set(materialId, novaQuantidade);
-        this.entradas.push({ material: materialId, quantidade, vemDe, data: new Date() })
-        return Promise.resolve();
-    } else return Material.findById(materialId).then(material => {
-        if (material) {
-            this.estoque.set(materialId, quantidade);
-            this.entradas.push({ material: materialId, quantidade, vemDe, data: new Date() })
-        } else throw "Material não encontrado.";
+AlmoxarifadoSchema.methods.adicionar = async function adicionar(materiaisSelecionados, vemDe) {
+    return Promise.all(materiaisSelecionados.map(material => Material.findById(material._id))).then(materiais => {
+        materiais.forEach((material, i) => {
+            if (material) {
+                if (this.estoque.has(String(material._id))) {
+                    const novaQuantidade = materiaisSelecionados[i].quantidade + this.estoque.get(String(material._id));
+                    this.estoque.set(String(material._id), novaQuantidade);
+                    this.entradas.push({ material: String(material._id), quantidade: materiaisSelecionados[i].quantidade, vemDe, data: new Date() })
+                } else {
+                    this.estoque.set(String(material._id), materiaisSelecionados[i].quantidade);
+                    this.entradas.push({ material: String(material._id), quantidade: materiaisSelecionados[i].quantidade, vemDe, data: new Date() })
+                }
+            }
+        })
     })
 }
 
@@ -70,7 +73,8 @@ AlmoxarifadoSchema.methods.verRelatorio = async function verRelatorio(opcao) {
                         unidadeMedida: materiais[i].unidadeMedida,
                         vaiPara: saida.vaiPara,
                         data: saida.data,
-                        servico: saida.servico
+                        servico: saida.servico,
+                        equipe: saida.equipe
                     }
             })
             )

@@ -55,10 +55,10 @@ router.route('/estoque')
     }
      */
     .put((req, res) => {
-        const { _id, material, quantidade, vemDe } = req.body;
+        const { _id, newArray, vemDe } = req.body;
         Almoxarifado.findById(_id).then(almoxarifado => {
             if (almoxarifado) {
-                almoxarifado.adicionar(material, quantidade, vemDe).then(() => {
+                almoxarifado.adicionar(newArray, vemDe).then(() => {
                     almoxarifado.save((erro, almoxarifado) => {
                         if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
                         else almoxarifado.verEstoque().then(materiais => res.status(200).json({
