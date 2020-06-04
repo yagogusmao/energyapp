@@ -23,9 +23,7 @@ router.route('/')
                     messagem: "Atividade salva com sucesso.", atividade });
                 else res.status(400).json({ sucesso: false, messagem: erro });
             })
-        } catch (erro) {
-            res.status(401).json({ sucesso: false, messagem: erro });
-        }
+        } catch (erro) { res.status(401).json({ sucesso: false, messagem: erro }) }
     })
     .get((req, res) => {
         Atividade.find().then(atividades => res.status(200).json({ sucesso: true, 

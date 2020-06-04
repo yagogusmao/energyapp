@@ -5,6 +5,18 @@ const queryString = require('query-string');
 var Material = require('../models/Material');
 
 router.route('/')
+    .post((req, res) => {
+        const { _id, unidadeMedida, descricao, codigoClasse, descricaoClasse } = req.body;
+        try {
+            let material = new Material();
+            material.criar(_id, unidadeMedida, descricao, codigoClasse, descricaoClasse);
+            material.save((erro, material) => {
+                if (!erro) res.status(201).json({ sucesso: true, 
+                    messagem: "Material salvo com sucesso.", material });
+                else res.status(400).json({ sucesso: false, messagem: erro });
+            })
+        } catch (erro) { res.status(401).json({ sucesso: false, messagem: erro }) }
+    })
     .get((req, res) => {
         const { _id, unidadeMedida, descricao, codigoClasse, descricaoClasse } = queryString.parse(req._parsedUrl.query);
         if (_id === "todos") Material.find().then(materiais => res.status(200).json({sucesso: true,

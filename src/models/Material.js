@@ -9,4 +9,12 @@ const MaterialSchema = new Schema({
     descricaoClasse: { type: String, required: true }
 });
 
+MaterialSchema.methods.criar = function criar (_id, unidadeMedida, descricao, codigoClasse, descricaoClasse) {
+    this._id = _id;
+    this.unidadeMedida = unidadeMedida;
+    this.descricao = descricao;
+    this.codigoClasse = codigoClasse;
+    this.descricaoClasse = descricaoClasse;
+}
+
 module.exports = moongose.model('materiais', MaterialSchema);
