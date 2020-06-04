@@ -49,9 +49,29 @@ router.route('/estoque')
      * put example localhost:8080/almoxarifado/estoque
     {
         "_id": "CAMPINAGRANDE-EPB",
-        "material": "20",
-        "quantidade": 40,
-        "vemDe": "ENERGISA"
+        "newArray": [
+            {
+                "_id": "20",
+                "quantidade": 123
+            },
+            {
+                "_id": "21",
+                "quantidade": 312
+            },
+            {
+                "_id": "23",
+                "quantidade": 321
+            },
+            {
+                "_id": "42",
+                "quantidade": 111
+            },
+            {
+                "_id": "352",
+                "quantidade": 222
+            }
+        ],
+        "vemDe": "ENERGISA",
     }
      */
     .put((req, res) => {
@@ -72,6 +92,37 @@ router.route('/estoque')
     })
 
 router.route('/retirarEstoque')
+/**
+     * put example localhost:8080/almoxarifado/estoque
+    {
+        "_id": "CAMPINAGRANDE-EPB",
+        "newArray": [
+            {
+                "_id": "20",
+                "quantidade": 123
+            },
+            {
+                "_id": "21",
+                "quantidade": 312
+            },
+            {
+                "_id": "23",
+                "quantidade": 321
+            },
+            {
+                "_id": "42",
+                "quantidade": 111
+            },
+            {
+                "_id": "352",
+                "quantidade": 222
+            }
+        ],
+        "vaiPara": "JUAZEIRINHO",
+        "servico": "00220000402",
+        "equipe": "ENPB-002"
+    }
+     */
     .put((req, res) => {
         const { _id, newArray, vaiPara, servico, equipe } = req.body;
         Almoxarifado.findById(_id).then(almoxarifado => {
