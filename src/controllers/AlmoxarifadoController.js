@@ -70,19 +70,14 @@ router.route('/estoque')
             } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
         })
     })
-    /**
-     * delete example localhost:8080/almoxarifado/estoque?_id=<_id do almoxarifado>&
-        material=<_id do material>&
-        quantidade=<quantidade de material que vai sair>&
-        vaiPara=<local para onde vai o material>&
-        servico=<código do servico>
-     */
-    .delete((req, res) => {
-        const { _id, material, quantidade, vaiPara, servico, equipe } = queryString.parse(req._parsedUrl.query);
+
+router.route('/retirarEstoque')
+    .put((req, res) => {
+        const { _id, newArray, vaiPara, servico, equipe } = req.body;
         Almoxarifado.findById(_id).then(almoxarifado => {
             if (almoxarifado) {
                 try {
-                    almoxarifado.retirar(material, quantidade, vaiPara, servico, equipe).then(() => {
+                    almoxarifado.retirar(newArray, vaiPara, servico, equipe).then(() => {
                         almoxarifado.save((erro, almoxarifado) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
                             else almoxarifado.verEstoque().then(materiais => res.status(200).json({

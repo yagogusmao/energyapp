@@ -35,16 +35,23 @@ AlmoxarifadoSchema.methods.adicionar = async function adicionar(materiaisSelecio
     })
 }
 
-AlmoxarifadoSchema.methods.retirar = function retirar(materialId, quantidade, vaiPara, servico, equipe) {
-    if (this.estoque.has(materialId)) {
-        if (this.estoque.get(materialId) - quantidade < 0) throw "O material ainda não possui estoque.";
-        else {
-            const novaQuantidade = this.estoque.get(materialId) - quantidade;
-            this.estoque.set(materialId, novaQuantidade)
-            this.saidas.push({ material: materialId, quantidade, vaiPara, servico, data: new Date(), equipe })
-            return Promise.resolve();
-        };
-    } else throw "Material não encontrado no estoque.";
+AlmoxarifadoSchema.methods.retirar = function retirar(materiaisSelecionadosRetirar, vaiPara, servico, equipe) {
+    return Promise.all(materiaisSelecionadosRetirar.map(material => Material.findById(material._id))).then(materiais => {
+        materiais.forEach((material, i) => {
+            if (material) {
+                if (this.estoque.has(String(material._id))) {
+                    if ((this.estoque.get(String(material._id)) - materiaisSelecionadosRetirar[i].quantidade) < 0) throw `O material ${material._id} não possui estoque suficiente.`;
+                    else {
+                        const novaQuantidade = this.estoque.get(String(material._id)) - materiaisSelecionadosRetirar[i].quantidade;
+                        if (novaQuantidade === 0) this.estoque.delete(String(material._id));
+                        else this.estoque.set(String(material._id), novaQuantidade)
+                        this.saidas.push({ material: String(material._id), quantidade: materiaisSelecionadosRetirar[i].quantidade, vaiPara, servico, data: new Date(), equipe })
+                        return Promise.resolve();
+                    };
+                }
+            }
+        })
+    })
 }
 
 AlmoxarifadoSchema.methods.verEstoque = async function verEstoque() {
