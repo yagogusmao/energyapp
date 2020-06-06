@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const queryString = require('query-string');
+const moongose = require('mongoose');
 
-var Material = require('../models/Material');
+const Material = require('../models/Material');
+const CodigoMateriais = require('../models/CodigoMateriais');
 
 router.route('/')
     .post((req, res) => {
@@ -27,10 +29,15 @@ router.route('/')
             if (descricao) pesquisa.descricao = { $regex: descricao, $options: 'i' };
             if (codigoClasse) pesquisa.codigoClasse = Number(codigoClasse);
             if (descricaoClasse) pesquisa.descricaoClasse = { $regex: descricaoClasse, $options: 'i' };
-            Material.find(pesquisa).then(materiais => res.status(200).json({sucesso: true,
-                mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais}))
+            Material.find(pesquisa).then(materiais => {
+                res.status(200).json({sucesso: true, mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais})})
         } else Material.find({_id: _id}).then(materiais => res.status(200).json({sucesso: true,
             mensagem: "Material cadastrado no sistema.", materiais}))
+    })
+
+router.route('/codigosClasses')
+    .get((req, res) => {
+        CodigoMateriais.find().then(codigos => res.json(codigos))
     })
 
 module.exports = router;
