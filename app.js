@@ -7,20 +7,14 @@ var cors = require('cors');
 
 var app = express();
 
-const corsOptions = {
-  origin: '*',
-  methods: [
-    'GET',
-    'PUT',
-    'POST',
-    'DELETE'
-  ],
-  allowedHeaders: [
-    'Content-Type',
-  ]
-}
+app.use(cors());
 
-app.use(cors(corsOptions));
+app.all('/*', function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 const port = process.env.PORT || 8080;
 const config = require('./src/config/config');
@@ -31,20 +25,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const Autenticador = require('./src/middlewares/Autenticador');
+
 const ApontamentoController = require('./src/controllers/ApontamentoController');
-app.use('/apontamento', ApontamentoController)
+app.use('/apontamento', Autenticador, ApontamentoController);
 const AtividadeController = require('./src/controllers/AtividadeController');
-app.use('/atividade', AtividadeController)
+app.use('/atividade', Autenticador, AtividadeController);
 const FuncionarioController = require('./src/controllers/FuncionarioController');
-app.use('/funcionario', FuncionarioController)
+app.use('/funcionario', Autenticador, FuncionarioController);
 const VeiculoController = require('./src/controllers/VeiculoController');
-app.use('/veiculo', VeiculoController)
+app.use('/veiculo', Autenticador, VeiculoController);
 const EquipeController = require('./src/controllers/EquipeController');
-app.use('/equipe', EquipeController)
+app.use('/equipe', Autenticador, EquipeController);
 const AlmoxarifadoController = require('./src/controllers/AlmoxarifadoController');
-app.use('/almoxarifado', AlmoxarifadoController)
-const MaterialController = require('./src/controllers/MaterialController')
-app.use('/material', MaterialController)
+app.use('/almoxarifado', Autenticador, AlmoxarifadoController);
+const MaterialController = require('./src/controllers/MaterialController');
+app.use('/material', Autenticador, MaterialController);
+const UsuarioController = require('./src/controllers/UsuarioController');
+app.use('/usuario', UsuarioController);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
