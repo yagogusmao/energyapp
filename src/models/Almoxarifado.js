@@ -88,7 +88,6 @@ AlmoxarifadoSchema.methods.retirarTransformador = function retirarTransformador(
 
 AlmoxarifadoSchema.methods.retirarMedidor = function retirarMedidor(material, vaiPara, servico, equipe,
     numero, nSeloCaixa, nSeloBorn) {
-    console.log(material)
     return Material.findById(material).then(material => {
         if (material) {
             if (this.estoque.has(String(material._id))) {
