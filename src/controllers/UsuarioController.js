@@ -4,6 +4,7 @@ const queryString = require('query-string');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const config = require('../config/config');
 
 const Usuario = require('../models/Usuario');
 
@@ -42,6 +43,6 @@ router.route('/login')
         })
     })
 
-const gerarToken = (parametros) => jwt.sign(parametros, process.env.SECRET, { expiresIn: '24h'});
+const gerarToken = (parametros) => jwt.sign(parametros, config.secret, { expiresIn: '24h'});
 
 module.exports = router;
