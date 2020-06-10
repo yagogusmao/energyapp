@@ -8,7 +8,7 @@ const UsuarioSchema = new Schema({
     _id: { type: String, required: true },
     nome: { type: String, required: true },
     cpf: { type: String, required: true },
-    funcao: { type: String, enum: ['PLANEJADOR', 'SUPERVISOR', 'GERENTE', 'ALMOXARIFE'], required: true },
+    funcao: { type: String, enum: ['PLANEJADOR', 'SUPERVISOR', 'GERENTE', 'ALMOXARIFE', 'GESTOR'], required: true },
     base: { type: String, enum: ['PB', 'MS', 'BR'], required: true },
     senha: { type: String, required: true }
 });

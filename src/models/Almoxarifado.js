@@ -4,10 +4,7 @@ const Schema = moongose.Schema;
 const Material = require('./Material');
 
 const AlmoxarifadoSchema = new Schema({
-    _id: {
-        type: String, enum: ['CAMPINAGRANDE-EBO', 'CAMPINAGRANDE-EPB', 'JUAZEIRINHO-EPB',
-            'SUME-EPB', 'ESPERANCA-EPB', 'SOLANEA-EPB', 'GUARABIRA-EPB'], required: true
-    },
+    _id: { type: String, required: true },
     estoque: { type: Map, of: Number, required: true }, //_id do material aponta pra a quantidade do material
     entradas: [{ material: String, quantidade: Number, vemDe: String, data: Date }],
     saidas: [{ material: String, quantidade: Number, vaiPara: String, servico: String, data: Date, equipe: String }],
