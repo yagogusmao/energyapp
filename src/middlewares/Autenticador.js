@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const config = require('../config/config');
 
 module.exports = (req, res, next) => {
 
@@ -14,7 +13,7 @@ module.exports = (req, res, next) => {
 
     const [ schema, token ] = partes;
 
-    jwt.verify(token, config.secret, (erro, descriptografado) => {
+    jwt.verify(token, process.env.SECRET, (erro, descriptografado) => {
         if(erro) return res.status(401).json({sucesso: false, message: erro});
 
         req._id = descriptografado._id;

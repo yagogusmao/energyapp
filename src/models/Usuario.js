@@ -3,7 +3,6 @@ const Schema = moongose.Schema;
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
-const config = require('../config/config');
 
 const UsuarioSchema = new Schema({
     _id: { type: String, required: true },
@@ -23,6 +22,6 @@ UsuarioSchema.methods.criar = function criar (_id, nome, cpf, funcao, base, senh
     this.senha = criarSenha(senha);
 }
 
-const criarSenha = (senha) => bcrypt.hashSync(senha, Number(config.salt_rounds));
+const criarSenha = (senha) => bcrypt.hashSync(senha, Number(process.env.SALT_ROUNDS));
 
 module.exports = moongose.model('Usuario', UsuarioSchema);
