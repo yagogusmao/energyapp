@@ -4,7 +4,9 @@ var config = {};
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-mongoose.connect(process.env.BANCO,{
+const banco = process.env.BANCO;
+
+mongoose.connect(banco,{
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

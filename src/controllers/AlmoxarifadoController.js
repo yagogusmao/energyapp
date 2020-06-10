@@ -124,22 +124,51 @@ router.route('/retirarEstoque')
         }
          */
     .put((req, res) => {
-        const { _id, newArray, vaiPara, servico, equipe } = req.body;
-        Almoxarifado.findById(_id).then(almoxarifado => {
-            if (almoxarifado) {
-                try {
-                    almoxarifado.retirar(newArray, vaiPara, servico, equipe).then(() => {
-                        almoxarifado.save((erro, almoxarifado) => {
-                            if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
-                            else almoxarifado.verEstoque().then(materiais => res.status(200).json({
-                                sucesso: true,
-                                mensagem: "Materiais retirados do estoque com sucesso", materiais
-                            }))
-                        })
-                    }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
-                } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
-            } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
-        })
+        const { _id, newArray, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
+        if (!sairAlmoxarifado) {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirar(newArray, vaiPara, servico, equipe).then(() => {
+                            almoxarifado.save((erro, almoxarifado) => {
+                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                    sucesso: true,
+                                    mensagem: "Materiais retirados do estoque com sucesso.", materiais
+                                }))
+                            })
+                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        } else {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirar(newArray, vaiPara, servico, equipe).then(() => {
+                            Almoxarifado.findById(vaiPara).then(almoxarifadoReceber => {
+                                if (almoxarifadoReceber) {
+                                    almoxarifadoReceber.adicionar(newArray, _id).then(() => {
+                                        almoxarifado.save((erro, almoxarifado) => {
+                                            if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                            else {
+                                                almoxarifadoReceber.save((erro) => {
+                                                    if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                                    else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                                        sucesso: true,
+                                                        mensagem: "Materiais retirados do estoque com sucesso.", materiais
+                                                    }))
+                                                })
+                                            }
+                                        })
+                                    }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado para receber não encontrado." });
+                            })
+                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        }
     })
 
 router.route('/relatorio')
@@ -175,43 +204,105 @@ router.route('/retirarTransformador')
     }
      */
     .put((req, res) => {
-        const { _id, _idTransformador, numeroSerie, tombamento, impedancia, dataFabricacao, vaiPara, servico, equipe } = req.body;
-        Almoxarifado.findById(_id).then(almoxarifado => {
-            if (almoxarifado) {
-                try {
-                    almoxarifado.retirarTransformador(_idTransformador, vaiPara, servico, equipe,
-                        numeroSerie, tombamento, impedancia, dataFabricacao).then(() => {
-                            almoxarifado.save((erro, almoxarifado) => {
-                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
-                                else almoxarifado.verEstoque().then(materiais => res.status(200).json({
-                                    sucesso: true,
-                                    mensagem: "Materiais retirados do estoque com sucesso", materiais
-                                }))
-                            })
-                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
-                } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
-            } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
-        })
+        const { _id, _idTransformador, numeroSerie, tombamento, impedancia, dataFabricacao, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
+        if (!sairAlmoxarifado) {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirarTransformador(_idTransformador, vaiPara, servico, equipe,
+                            numeroSerie, tombamento, impedancia, dataFabricacao).then(() => {
+                                almoxarifado.save((erro, almoxarifado) => {
+                                    if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                    else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                        sucesso: true,
+                                        mensagem: "Materiais retirados do estoque com sucesso", materiais
+                                    }))
+                                })
+                            }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        } else {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirarTransformador(_idTransformador, vaiPara, servico, equipe,
+                            numeroSerie, tombamento, impedancia, dataFabricacao).then(() => {
+                                Almoxarifado.findById(vaiPara).then(almoxarifadoReceber => {
+                                    if (almoxarifadoReceber) {
+                                        almoxarifadoReceber.adicionar([{ _id: _idTransformador, quantidade: 1 }], _id).then(() => {
+                                            almoxarifado.save((erro, almoxarifado) => {
+                                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                                else {
+                                                    almoxarifadoReceber.save((erro) => {
+                                                        if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                                        else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                                            sucesso: true,
+                                                            mensagem: "Materiais retirados do estoque com sucesso.", materiais
+                                                        }))
+                                                    })
+                                                }
+                                            })
+                                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                                    } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado para receber não encontrado." });
+                                })
+                            }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        }
+
     })
 
 router.route('/retirarMedidor')
     .put((req, res) => {
-        const { _id, _idMedidor, numero, nSeloCaixa, nSeloBorn, vaiPara, servico, equipe } = req.body;
-        Almoxarifado.findById(_id).then(almoxarifado => {
-            if (almoxarifado) {
-                try {
-                    almoxarifado.retirarMedidor(_idMedidor, vaiPara, servico, equipe,
-                        numero, nSeloCaixa, nSeloBorn).then(() => {
-                            almoxarifado.save((erro, almoxarifado) => {
-                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
-                                else almoxarifado.verEstoque().then(materiais => res.status(200).json({
-                                    sucesso: true,
-                                    mensagem: "Materiais retirados do estoque com sucesso", materiais
-                                }))
-                            })
-                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
-                } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
-            } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
-        })
+        const { _id, _idMedidor, numero, nSeloCaixa, nSeloBorn, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
+        if (!sairAlmoxarifado) {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirarMedidor(_idMedidor, vaiPara, servico, equipe,
+                            numero, nSeloCaixa, nSeloBorn).then(() => {
+                                almoxarifado.save((erro, almoxarifado) => {
+                                    if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                    else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                        sucesso: true,
+                                        mensagem: "Materiais retirados do estoque com sucesso", materiais
+                                    }))
+                                })
+                            }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        } else {
+            Almoxarifado.findById(_id).then(almoxarifado => {
+                if (almoxarifado) {
+                    try {
+                        almoxarifado.retirarMedidor(_idMedidor, vaiPara, servico, equipe,
+                            numero, nSeloCaixa, nSeloBorn).then(() => {
+                                Almoxarifado.findById(vaiPara).then(almoxarifadoReceber => {
+                                    if (almoxarifadoReceber) {
+                                        almoxarifadoReceber.adicionar([{ _id: _idMedidor, quantidade: 1 }], _id).then(() => {
+                                            almoxarifado.save((erro, almoxarifado) => {
+                                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                                else {
+                                                    almoxarifadoReceber.save((erro) => {
+                                                        if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message });
+                                                        else almoxarifado.verEstoque().then(materiais => res.status(200).json({
+                                                            sucesso: true,
+                                                            mensagem: "Materiais retirados do estoque com sucesso.", materiais
+                                                        }))
+                                                    })
+                                                }
+                                            })
+                                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                                    } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado para receber não encontrado." });
+                                })
+                            }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
+                } else res.status(400).json({ sucesso: false, mensagem: "Almoxarifado não encontrado." });
+            })
+        }
     })
+
 module.exports = router;
