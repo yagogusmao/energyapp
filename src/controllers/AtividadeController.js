@@ -20,14 +20,14 @@ router.route('/')
             atividade.criar(_id, nome, tipo, valor);
             atividade.save((erro, atividade) => {
                 if (!erro) res.status(201).json({ sucesso: true, 
-                    messagem: "Atividade salva com sucesso.", atividade });
-                else res.status(400).json({ sucesso: false, messagem: erro });
+                    mensagem: "Atividade salva com sucesso.", atividade });
+                else res.status(400).json({ sucesso: false, mensagem: erro.message });
             })
-        } catch (erro) { res.status(401).json({ sucesso: false, messagem: erro }) }
+        } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
         Atividade.find().then(atividades => res.status(200).json({ sucesso: true, 
-            messagem: "Atividades cadastradas no sistema.", atividades }))
+            mensagem: "Atividades cadastradas no sistema.", atividades }))
     })
 
 module.exports = router;

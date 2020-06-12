@@ -15,9 +15,9 @@ router.route('/')
             material.save((erro, material) => {
                 if (!erro) res.status(201).json({ sucesso: true, 
                     messagem: "Material salvo com sucesso.", material });
-                else res.status(400).json({ sucesso: false, messagem: erro });
+                else res.status(400).json({ sucesso: false, mensagem: erro.message });
             })
-        } catch (erro) { res.status(401).json({ sucesso: false, messagem: erro }) }
+        } catch (erro) { res.status(401).json({ sucesso: false, mensagem: erro + ""}) }
     })
     .get((req, res) => {
         const { _id, unidadeMedida, descricao, codigoClasse, descricaoClasse } = queryString.parse(req._parsedUrl.query);
