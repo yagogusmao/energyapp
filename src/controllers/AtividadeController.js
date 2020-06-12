@@ -16,18 +16,24 @@ router.route('/')
     .post((req, res) => {
         try {
             const { _id, nome, tipo, valor } = req.body;
-            let atividade = new Atividade();
-            atividade.criar(_id, nome, tipo, valor);
-            atividade.save((erro, atividade) => {
-                if (!erro) res.status(201).json({ sucesso: true, 
-                    mensagem: "Atividade salva com sucesso.", atividade });
-                else res.status(400).json({ sucesso: false, mensagem: erro.message });
-            })
+            if (req.funcao === "SUPERVISOR") {
+                let atividade = new Atividade();
+                atividade.criar(_id, nome, tipo, valor);
+                atividade.save((erro, atividade) => {
+                    if (!erro) res.status(201).json({
+                        sucesso: true,
+                        mensagem: "Atividade salva com sucesso.", atividade
+                    });
+                    else res.status(400).json({ sucesso: false, mensagem: erro.message });
+                })
+            } else res.status(400).json({ sucesso: false, mensagem: "Ação permitida apenas para supervisores." });
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
-        Atividade.find().then(atividades => res.status(200).json({ sucesso: true, 
-            mensagem: "Atividades cadastradas no sistema.", atividades }))
+        Atividade.find().then(atividades => res.status(200).json({
+            sucesso: true,
+            mensagem: "Atividades cadastradas no sistema.", atividades
+        }))
     })
 
 module.exports = router;
