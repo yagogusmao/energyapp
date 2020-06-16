@@ -13,7 +13,7 @@ const FuncionarioSchema = new Schema({
             'ARARUNA', 'PICUI', 'SUME', 'JUAZEIRINHO'], required: true
     },
     data: {
-        inicio: { type: Date, required: true },
+        inicio: { type: String, required: true },
         fim: Date
     },
     cargo: {
@@ -32,7 +32,7 @@ FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo,
     this.cpf = cpf;
     this.telefone = telefone;
     this.lotacao = lotacao;
-    this.data.inicio = new Date(dataInicio);
+    this.data.inicio = dataInicio;
     this.cargo = cargo;
     this.equipe = "";
 }

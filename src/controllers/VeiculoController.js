@@ -11,11 +11,11 @@ router.route('/')
             let veiculo = new Veiculo();
             veiculo.criar(_id, numeracao, kilometragem, modelo);
             veiculo.save((erro, veiculo) => {
-                if (erro) res.status(400).json({ sucesso: false, mensagem: erro })
+                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                 else res.status(201).json({ sucesso: true, mensagem: "Veículo criado com sucesso.", veiculo });
             })
         } catch (erro) {
-            res.status(400).json({ sucesso: false, mensagem: erro })
+            res.status(400).json({ sucesso: false, mensagem: erro + ""})
         }
     })
     .get((req, res) => {

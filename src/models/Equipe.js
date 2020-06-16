@@ -6,10 +6,10 @@ const Funcionario = require('./Funcionario');
 
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
-    tipo: { type: String, enum: ['MANUTENCAO/CONSTRUCAO', 'PODA', 'DEOP', 'DECP'], required: true },
+    tipo: { type: String, enum: ['MANUTENCAO', 'CONSTRUCAO', 'PODA', 'DEOP', 'DECP'], required: true },
     funcionarios: { type: Map, required: true }, //[{ _id: { type: String, required: true } }],
     local: {
-        type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA'],
+        type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA', 'MONTEIRO', 'BOQUEIRAO'],
         required: true
     },
     status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADA', 'SEM FUNCIONARIOS'], required: true },
@@ -190,6 +190,12 @@ const validarVeiculo = async (placa) => {
             if (veiculo.equipe === "" || veiculo.equipe === undefined) return placa;
             else throw "Veículo já está sendo usado por uma equipe.";
         } else throw "Veículo não encontrado.";
+    })
+}
+
+EquipeSchema.methods.verFuncionarios = function verFuncionarios() {
+    return Array.from(this.funcionarios).map(([chave, valor]) => {
+        return {_id: chave, nome: valor.nome, cargo: valor.cargo, cpf: valor.cpf}
     })
 }
 
