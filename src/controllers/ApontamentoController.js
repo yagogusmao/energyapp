@@ -12,20 +12,20 @@ router.route('/')
         "tipo": "CONSTRUCAO",
         "pessoaSupervisor": "Yago",
         "pessoaEncarregado": "Erik",
-        "veiculo": "MOI3131",
         "si": "qqrcoisa",
         "equipe": "Alpha",
         "cidade": "Juazeirinho",
         "endereco": "Praça da igreja",
-        "localSaida": "Energy CG"
+        "localSaida": "Energy CG",
+        "codigoObra": "0022000546"
     }
      */
 
     .post((req, res) => {
         try {
-            const { tipo, pessoaSupervisor, pessoaEncarregado, si, equipe, cidade, endereco, localSaida } = req.body;
+            const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, localSaida, codigoObra } = req.body;
             let apontamento = new Apontamento();
-            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, si, equipe, cidade, endereco, localSaida)
+            apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, localSaida, codigoObra)
                 .then(() => {
                     apontamento.save((erro, apontamento) => {
                         if (!erro) res.status(201).json({sucesso: true,
@@ -62,7 +62,7 @@ router.route('/')
                         apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades).then(() => {
                             apontamento.save((erro, apontamento) => {
                                 if (!erro) res.status(200).json({ sucesso: true, 
-                                    messagem: "Apontamento finalizado com sucesso.", apontamento });
+                                    mensagem: "Apontamento finalizado com sucesso.", apontamento });
                                 else res.status(400).json({ sucesso: false, mensagem: erro.message });
                             })
                         }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }))
@@ -78,12 +78,12 @@ router.route('/')
      */
 
     .get((req, res) => {
-        const { _id } = queryString.parse(req._parsedUrl.query);
-        if (_id === "all") Apontamento.find().then(apontamentos => res.status(200).json({ sucesso: true, 
-            messagem: "Apontamentos cadastrados no sistema.", apontamentos }))
+        const { _id, opcao } = queryString.parse(req._parsedUrl.query);
+        if (opcao) Apontamento.find({status: opcao}).then(apontamentos => res.status(200).json({ sucesso: true, 
+            mensagem: "Apontamentos cadastrados no sistema.", apontamentos }))
         else Apontamento.findById(_id).then(apontamento => {
             if (apontamento) res.status(200).json({ sucesso: true, 
-                messagem: "Apontamento retornado com sucesso.", apontamento });
+                mensagem: "Apontamento retornado com sucesso.", apontamento });
             else res.status(400).json({ sucesso: false, erro: "Apontamento não encontrado." });
         }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
     })

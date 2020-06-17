@@ -6,7 +6,7 @@ const Equipe = require('./Equipe');
 const Veiculo = require('./Veiculo');
 
 const ApontamentoSchema = new Schema({
-    tipo: { type: String, enum: ["MANUTENCAO/CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHAVIVA"], required: true },
+    tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHAVIVA"], required: true },
     pessoa: {
         supervisor: { type: String, required: true },
         tecnicoEnergisa: String,
@@ -20,8 +20,9 @@ const ApontamentoSchema = new Schema({
             total: Number
         }
     },
+    codigoObra: String,
     PgCp: String,
-    si: { type: String, required: true },
+    pes: String,
     equipe: { type: String, required: true },
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
@@ -39,17 +40,18 @@ const ApontamentoSchema = new Schema({
     status: { type: String, enum: ["INICIADO", "FINALIZADO"], required: true }
 });
 
-ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, si, equipe,
-    cidade, endereco, localSaida) {
+ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe,
+    cidade, endereco, localSaida, codigoObra) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
             const veiculo = await Veiculo.findById(equipe.veiculo);
+            this.codigoObra = codigoObra;
             this.tipo = tipo;
             this.pessoa.supervisor = pessoaSupervisor;
             this.pessoa.encarregado = pessoaEncarregado;
             this.veiculo.placa = veiculo;
             this.veiculo.kilometragem.inicio = veiculo.kilometragem;
-            this.si = si;
+            this.pes = pes;
             this.equipe = equipe._id;
             this.cidade = cidade;
             this.endereco = endereco;

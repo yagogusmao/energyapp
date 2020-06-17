@@ -88,7 +88,8 @@ EquipeSchema.methods.adicionarVeiculo = async function adicionarVeiculo(veiculo)
             if (veiculo) {
                 if (veiculo.equipe === "") {
                     veiculo.equipe = this._id;
-                    if (this.status === "SEM VEICULO") this.status = "OK";
+                    if (this.status === "SEM VEICULO" && Array.from(this.funcionarios) > 3) this.status = "OK";
+                    else this.status = "SEM FUNCIONARIOS";
                     this.veiculo = veiculo._id;
                     await veiculo.save()
                 } else throw "Veículo já está sendo usado por uma equipe.";
