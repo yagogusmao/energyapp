@@ -195,4 +195,59 @@ router.route('/faturamento')
             });
         })
     })
+
+router.route('/faturamentoTodasEquipes')
+    .get((req, res) => {
+        Equipe.find().then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels, 
+                            data: graficoHoje
+                        },
+                        {
+                            labels, 
+                            data: graficoSemana
+                        },
+                        {
+                            labels, 
+                            data: graficoMes
+                        },
+                        {
+                            labels, 
+                            data: graficoAno 
+                        },
+                        {
+                            labels, 
+                            data: grafico
+                        }
+                    ]
+                })
+            })
+        })
+    })
 module.exports = router;
