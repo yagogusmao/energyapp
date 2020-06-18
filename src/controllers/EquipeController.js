@@ -131,7 +131,7 @@ router.route('/funcionario')
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
                                 Funcionario.find({ equipe: "" }).then(funcionariosSemEquipe => res.status(200).json({
-                                    sucesso: true,
+                                    sucesso: true, equipe,
                                     mensagem: "Funcionário adicionado com sucesso.", funcionarios: equipe.verFuncionarios(),
                                     funcionariosSemEquipe: funcionariosSemEquipe
                                 }))
@@ -152,7 +152,7 @@ router.route('/funcionario')
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
                                 Funcionario.find({ equipe: "" }).then(funcionariosSemEquipe => res.status(200).json({
-                                    sucesso: true,
+                                    sucesso: true, equipe,
                                     mensagem: "Funcionário retirado com sucesso.", funcionarios: equipe.verFuncionarios(),
                                     funcionariosSemEquipe: funcionariosSemEquipe
                                 }))
@@ -180,6 +180,19 @@ router.route('/verVeiculosSemEquipes')
                 sucesso: true,
                 mensagem: "Veículos sem equipe no sistema.", veiculos
             })
+        })
+    })
+
+router.route('/faturamento')
+    .get((req, res) => {
+        const { _id } = queryString.parse(req._parsedUrl.query);
+        Equipe.findById(_id).then(equipe => {
+            equipe.verFaturamento().then(faturamento => {
+                res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Faturamento da equipe.", faturamento
+                })
+            });
         })
     })
 module.exports = router;

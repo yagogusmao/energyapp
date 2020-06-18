@@ -3,6 +3,8 @@ const Schema = moongose.Schema;
 
 const Veiculo = require('./Veiculo');
 const Funcionario = require('./Funcionario');
+const moment = require('moment');
+const currentWeek = require('current-week');
 
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
@@ -15,7 +17,10 @@ const EquipeSchema = new Schema({
     status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADA', 'SEM FUNCIONARIOS'], required: true },
     veiculo: String,
     apontamentos: [String],
-    meta: Number,
+    metaDiaria: Number,
+    metaSemanal: Number,
+    metaMensal: Number,
+    metaAnual: Number,
 });
 
 EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo) {
@@ -198,6 +203,43 @@ EquipeSchema.methods.verFuncionarios = function verFuncionarios() {
     return Array.from(this.funcionarios).map(([chave, valor]) => {
         return {_id: chave, nome: valor.nome, cargo: valor.cargo, cpf: valor.cpf}
     })
+}
+
+EquipeSchema.methods.verFaturamento = function verFaturamento () {
+    const Apontamento = require('./Apontamento');
+    return Promise.all(this.apontamentos.map(apontamento => Apontamento.findById(apontamento))).then(apontamentos => {
+        const apontamentosHoje = apontamentos.filter(apontamento => (apontamento.hora.fim > data().hoje && apontamento.hora.fim < data().amanha));
+        const lucroHoje = apontamentosHoje.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
+        const apontamentosSemana = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioSemana && apontamento.hora.fim < data().finalSemana));
+        const lucroSemana = apontamentosSemana.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
+        const apontamentosMes = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioMes && apontamento.hora.fim < data().finalMes));
+        const lucroMes = apontamentosMes.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
+        const apontamentosAno = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioAno && apontamento.hora.fim < data().finalAno));
+        const lucroAno = apontamentosAno.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
+        const lucro = apontamentos.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
+        return {
+            apontamentosHoje, lucroHoje, 
+            apontamentosSemana, lucroSemana, 
+            apontamentosMes, lucroMes,
+            apontamentosAno, lucroAno,
+            apontamentos, lucro}
+    })
+}
+
+const data = () => {
+    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + (new Date().getDate() + 1).toString();
+    const mes = new Date().getMonth() > 9 ? new Date().getMonth().toString() : '0' + (new Date().getMonth() + 1).toString();
+    const ano = new Date().getFullYear().toString();
+    return {
+        hoje: new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').format()), 
+        amanha:  new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').add(1, 'day').format()),
+        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0])-1}`).subtract(3, 'hours').format()), 
+        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getLastWeekDay().split('.')[0])-1}`).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()), 
+        inicioMes: new Date(moment(`${ano}${mes}01`).subtract(3, 'hours').format()), 
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        inicioAno: new Date(moment(`${ano}0101`).subtract(3, 'hours').format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+    }
 }
 
 module.exports = moongose.model('Equipe', EquipeSchema);
