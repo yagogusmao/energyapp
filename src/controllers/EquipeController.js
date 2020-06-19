@@ -53,13 +53,13 @@ router.route('/')
                 mensagem: "Equipe cadastrada no sistema.", equipe, funcionarios
             })
         })
-        else if (req._id === "517"){
+        else if (req._id === "517") {
             Equipe.find().then(equipes => res.status(200).json({
                 sucesso: true,
                 mensagem: "Equipe cadastradas no sistema.", equipes
             }))
         }
-        else{
+        else {
             if (req.equipes && req.equipes.length > 0) {
                 const pesquisa = req.equipes.map(equipe => { return { tipo: equipe } })
                 Equipe.find({ base: req.base, $or: pesquisa }).then(equipes => res.status(200).json({
@@ -213,64 +213,284 @@ router.route('/faturamento')
         })
     })
 
-router.route('/faturamentoTodasEquipes')
+router.route('/faturamentoConstrucao')
     .get((req, res) => {
-        let pesquisa;
-        console.log(req.nome)
-        if (req.equipes && req.equipes.length > 0) {
-            pesquisa = req.equipes.map(equipe => { return { tipo: equipe } });
-            Equipe.find({ base: req.base, $or: pesquisa }).then(equipes => {
-                Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
-                    let labels = [];
-                    const faturamentoPorEquipes = equipes.map((equipe, i) => {
-                        labels.push(equipe._id);
-                        return {
-                            equipe: equipe._id,
-                            faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
-                                acumulado + apontamento.lucro, 0),
-                            faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
-                                acumulado + apontamento.lucro, 0),
-                            faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
-                                acumulado + apontamento.lucro, 0),
-                            faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
-                                acumulado + apontamento.lucro, 0),
-                            faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
-                                acumulado + apontamento.lucro, 0)
+        Equipe.find({ base: req.base, tipo: "CONSTRUCAO" }).then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels,
+                            data: graficoHoje
+                        },
+                        {
+                            labels,
+                            data: graficoSemana
+                        },
+                        {
+                            labels,
+                            data: graficoMes
+                        },
+                        {
+                            labels,
+                            data: graficoAno
+                        },
+                        {
+                            labels,
+                            data: grafico
                         }
-                    })
-                    const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
-                    const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
-                    const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
-                    const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
-                    const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
-                    res.status(200).json({
-                        sucesso: true, mensagem: "Faturamento das equipes",
-                        graficos: [
-                            {
-                                labels,
-                                data: graficoHoje
-                            },
-                            {
-                                labels,
-                                data: graficoSemana
-                            },
-                            {
-                                labels,
-                                data: graficoMes
-                            },
-                            {
-                                labels,
-                                data: graficoAno
-                            },
-                            {
-                                labels,
-                                data: grafico
-                            }
-                        ]
-                    })
+                    ]
                 })
             })
-        } else Equipe.find({ base: req.base }).then(equipes => {
+        })
+    })
+
+router.route('/faturamentoManutencao')
+    .get((req, res) => {
+        Equipe.find({ base: req.base, tipo: "MANUTENCAO" }).then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels,
+                            data: graficoHoje
+                        },
+                        {
+                            labels,
+                            data: graficoSemana
+                        },
+                        {
+                            labels,
+                            data: graficoMes
+                        },
+                        {
+                            labels,
+                            data: graficoAno
+                        },
+                        {
+                            labels,
+                            data: grafico
+                        }
+                    ]
+                })
+            })
+        })
+    })
+
+router.route('/faturamentoPoda')
+    .get((req, res) => {
+        Equipe.find({ base: req.base, tipo: "PODA" }).then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels,
+                            data: graficoHoje
+                        },
+                        {
+                            labels,
+                            data: graficoSemana
+                        },
+                        {
+                            labels,
+                            data: graficoMes
+                        },
+                        {
+                            labels,
+                            data: graficoAno
+                        },
+                        {
+                            labels,
+                            data: grafico
+                        }
+                    ]
+                })
+            })
+        })
+    })
+
+router.route('/faturamentoLinhaviva')
+    .get((req, res) => {
+        Equipe.find({ base: req.base, tipo: "LINHA VIVA" }).then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels,
+                            data: graficoHoje
+                        },
+                        {
+                            labels,
+                            data: graficoSemana
+                        },
+                        {
+                            labels,
+                            data: graficoMes
+                        },
+                        {
+                            labels,
+                            data: graficoAno
+                        },
+                        {
+                            labels,
+                            data: grafico
+                        }
+                    ]
+                })
+            })
+        })
+    })
+
+router.route('/faturamentoDECP')
+    .get((req, res) => {
+        Equipe.find({ base: req.base, tipo: "DECP" }).then(equipes => {
+            Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                let labels = [];
+                const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                    labels.push(equipe._id);
+                    return {
+                        equipe: equipe._id,
+                        faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0),
+                        faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                            acumulado + apontamento.lucro, 0)
+                    }
+                })
+                const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                res.status(200).json({
+                    sucesso: true, mensagem: "Faturamento das equipes",
+                    graficos: [
+                        {
+                            labels,
+                            data: graficoHoje
+                        },
+                        {
+                            labels,
+                            data: graficoSemana
+                        },
+                        {
+                            labels,
+                            data: graficoMes
+                        },
+                        {
+                            labels,
+                            data: graficoAno
+                        },
+                        {
+                            labels,
+                            data: grafico
+                        }
+                    ]
+                })
+            })
+        })
+    })
+    
+router.route('/faturamentoDEOP')
+    .get((req, res) => {
+        Equipe.find({ base: req.base, tipo: "DEOP" }).then(equipes => {
             Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
                 let labels = [];
                 const faturamentoPorEquipes = equipes.map((equipe, i) => {

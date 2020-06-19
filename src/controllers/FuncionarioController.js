@@ -22,10 +22,17 @@ router.route('/')
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
-        Funcionario.find({base: req.base}).then(funcionarios => res.status(200).json({
-            sucesso: true,
-            mensagem: "Funcionários cadastrados no sistema", funcionarios
-        }))
+        if (req._id === "517") {
+            Funcionario.find().then(funcionarios => res.status(200).json({
+                sucesso: true,
+                mensagem: "Funcionários cadastrados no sistema", funcionarios
+            }))
+        } else {
+            Funcionario.find({ base: req.base }).then(funcionarios => res.status(200).json({
+                sucesso: true,
+                mensagem: "Funcionários cadastrados no sistema", funcionarios
+            }))
+        }
     })
 
 module.exports = router;

@@ -7,8 +7,7 @@ const Veiculo = require('../models/Veiculo');
 router.route('/')
     .post((req, res) => {
         try {
-            if (req._id === "517"){
-                console.log(req.base)
+            if (req._id === "517") {
                 const { _id, numeracao, kilometragem, modelo } = req.body;
                 let veiculo = new Veiculo();
                 veiculo.criar(_id, numeracao, kilometragem, modelo, req.base);
@@ -22,10 +21,17 @@ router.route('/')
         }
     })
     .get((req, res) => {
-        Veiculo.find({ base: req.base }).then(veiculos => res.status(200).json({
-            sucesso: true,
-            mensagem: "Veículos cadastrados no sistema", veiculos
-        }))
+        if (req._id === "517") {
+            Veiculo.find().then(veiculos => res.status(200).json({
+                sucesso: true,
+                mensagem: "Veículos cadastrados no sistema", veiculos
+            }))
+        } else {
+            Veiculo.find({ base: req.base }).then(veiculos => res.status(200).json({
+                sucesso: true,
+                mensagem: "Veículos cadastrados no sistema", veiculos
+            }))
+        }
     })
 
 module.exports = router;

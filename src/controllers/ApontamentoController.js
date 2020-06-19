@@ -90,10 +90,19 @@ router.route('/')
 
     .get((req, res) => {
         const { _id, opcao } = queryString.parse(req._parsedUrl.query);
-        if (opcao) Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => res.status(200).json({
-            sucesso: true,
-            mensagem: "Apontamentos cadastrados no sistema.", apontamentos
-        }))
+        if (opcao) Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => {
+            const construcao = apontamentos.filter(apontamento => apontamento.tipo === "CONSTRUCAO");
+            const manutencao = apontamentos.filter(apontamento => apontamento.tipo === "MANUTENCAO");
+            const linhaviva = apontamentos.filter(apontamento => apontamento.tipo === "LINHA VIVA");
+            const poda = apontamentos.filter(apontamento => apontamento.tipo === "PODA");
+            const decp = apontamentos.filter(apontamento => apontamento.tipo === "DECP");
+            const deop = apontamentos.filter(apontamento => apontamento.tipo === "DEOP");
+            res.status(200).json({
+                sucesso: true,
+                mensagem: "Apontamentos cadastrados no sistema.", 
+                apontamentos, construcao, manutencao, linhaviva, poda, decp, deop
+            })
+        })
         else Apontamento.findById(_id).then(apontamento => {
             if (apontamento) res.status(200).json({
                 sucesso: true,

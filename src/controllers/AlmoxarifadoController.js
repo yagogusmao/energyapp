@@ -26,8 +26,22 @@ router.route('/')
      * get example localhost:8080/almoxarifado
      */
     .get((req, res) => {
-        if (req.funcao === "ALMOXARIFE" || req._id === "517" || req.funcao === "GERENTE" ) {
+        if (req.funcao === "ALMOXARIFE" || req.funcao === "GERENTE" ) {
             Almoxarifado.find({ base: req.base }).then(almoxarifados =>
+                res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Almoxarifados cadastrados no sistema.",
+                    almoxarifados: almoxarifados.map(almoxarifado => {
+                        return {
+                            _id: almoxarifado._id,
+                            quantidade: Array.from(almoxarifado.estoque).reduce((acumulado, [chave, valor]) => {
+                                return acumulado += valor;
+                            }, 0)
+                        }
+                    })
+                }));
+        } else if (req._id==="517"){
+            Almoxarifado.find().then(almoxarifados =>
                 res.status(200).json({
                     sucesso: true,
                     mensagem: "Almoxarifados cadastrados no sistema.",
