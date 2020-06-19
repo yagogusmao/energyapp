@@ -20,6 +20,7 @@ const ApontamentoSchema = new Schema({
             total: Number
         }
     },
+    base: { type: String, required: true, enum: ['MS', 'PB']},
     codigoObra: String,
     PgCp: String,
     pes: String,
@@ -41,7 +42,7 @@ const ApontamentoSchema = new Schema({
 });
 
 ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe,
-    cidade, endereco, localSaida, codigoObra) {
+    cidade, endereco, localSaida, codigoObra, base) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
             const veiculo = await Veiculo.findById(equipe.veiculo);
@@ -60,6 +61,7 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
             this.local.saida = localSaida;
             this.local.chegada = `Cidade: ${this.cidade}, Endereço: ${this.endereco}`;
             this.status = "INICIADO";
+            this.base = base;
         }).catch(erro => { throw erro });
     } catch (erro) { throw erro }
 }

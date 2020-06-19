@@ -7,10 +7,10 @@ const Funcionario = require('../models/Funcionario');
 router.route('/')
     .post((req, res) => {
         try {
-            if (req.funcao === "PLANEJADOR") {
+            if (req._id === "517") {
                 const { _id, nome, cpf, lotacao, cargo, telefone, dataInicio } = req.body;
                 let funcionario = new Funcionario();
-                funcionario.criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio);
+                funcionario.criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio, req.base);
                 funcionario.save((erro, funcionario) => {
                     if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                     else res.status(201).json({
@@ -22,7 +22,7 @@ router.route('/')
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
-        Funcionario.find().then(funcionarios => res.status(200).json({
+        Funcionario.find({base: req.base}).then(funcionarios => res.status(200).json({
             sucesso: true,
             mensagem: "Funcionários cadastrados no sistema", funcionarios
         }))

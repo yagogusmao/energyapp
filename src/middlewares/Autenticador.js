@@ -21,6 +21,7 @@ module.exports = (req, res, next) => {
         req.nome = descriptografado.nome;
         req.base = descriptografado.base;
         req.funcao = descriptografado.funcao;
+        req.equipes = descriptografado.equipes;
         
         return next();
     })

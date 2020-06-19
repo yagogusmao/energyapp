@@ -12,31 +12,39 @@ router.route('/')
     }
      */
     .post((req, res) => {
-        const { _id } = req.body;
-        let almoxarifado = new Almoxarifado();
-        almoxarifado.criar(_id);
-        almoxarifado.save((erro, almoxarifado) => {
-            if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
-            else res.status(201).json({ sucesso: true, mensagem: "Almoxarifado criado com sucesso.", almoxarifado })
-        })
+        if (req._id === "517") {
+            const { _id, base } = req.body;
+            let almoxarifado = new Almoxarifado();
+            almoxarifado.criar(_id, base);
+            almoxarifado.save((erro, almoxarifado) => {
+                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
+                else res.status(201).json({ sucesso: true, mensagem: "Almoxarifado criado com sucesso.", almoxarifado })
+            })
+        } else res.status(400).json({ sucesso: false, mensagem: "Ação permitida apenas para o setor administrativo." })
     })
     /**
      * get example localhost:8080/almoxarifado
      */
     .get((req, res) => {
-        Almoxarifado.find().then(almoxarifados =>
-            res.status(200).json({
-                sucesso: true,
-                mensagem: "Almoxarifados cadastrados no sistema.",
-                almoxarifados: almoxarifados.map(almoxarifado => {
-                    return { 
-                        _id: almoxarifado._id, 
-                        quantidade: Array.from(almoxarifado.estoque).reduce((acumulado, [chave, valor]) => {
-                            return acumulado += valor;
-                        }, 0) 
-                    }
-                })
-            }));
+        if (req.funcao === "ALMOXARIFE" || req._id === "517" || req.funcao === "GERENTE" ) {
+            Almoxarifado.find({ base: req.base }).then(almoxarifados =>
+                res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Almoxarifados cadastrados no sistema.",
+                    almoxarifados: almoxarifados.map(almoxarifado => {
+                        return {
+                            _id: almoxarifado._id,
+                            quantidade: Array.from(almoxarifado.estoque).reduce((acumulado, [chave, valor]) => {
+                                return acumulado += valor;
+                            }, 0)
+                        }
+                    })
+                }));
+        } else res.status(200).json({
+            sucesso: true,
+            mensagem: "Almoxarifados cadastrados no sistema.",
+            almoxarifados: []
+        });
     })
 
 router.route('/estoque')
@@ -85,7 +93,7 @@ router.route('/estoque')
      */
     .put((req, res) => {
         const { _id, newArray, vemDe } = req.body;
-        if (req.funcao === "ALMOXARIFE") {
+        if (req.funcao === "ALMOXARIFE" || req._id === "517") {
             Almoxarifado.findById(_id).then(almoxarifado => {
                 if (almoxarifado) {
                     almoxarifado.adicionar(newArray, vemDe).then(() => {
@@ -136,7 +144,7 @@ router.route('/retirarEstoque')
          */
     .put((req, res) => {
         const { _id, newArray, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
-        if (req.funcao === "ALMOXARIFE") {
+        if (req.funcao === "ALMOXARIFE" || req._id === "517") {
             if (!sairAlmoxarifado) {
                 Almoxarifado.findById(_id).then(almoxarifado => {
                     if (almoxarifado) {
@@ -218,7 +226,7 @@ router.route('/retirarTransformador')
      */
     .put((req, res) => {
         const { _id, _idTransformador, numeroSerie, tombamento, impedancia, dataFabricacao, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
-        if (req.funcao === "ALMOXARIFE") {
+        if (req.funcao === "ALMOXARIFE" || req._id === "517") {
             if (!sairAlmoxarifado) {
                 Almoxarifado.findById(_id).then(almoxarifado => {
                     if (almoxarifado) {
@@ -271,7 +279,7 @@ router.route('/retirarTransformador')
 router.route('/retirarMedidor')
     .put((req, res) => {
         const { _id, _idMedidor, numero, nSeloCaixa, nSeloBorn, vaiPara, servico, equipe, sairAlmoxarifado } = req.body;
-        if (req.funcao === "ALMOXARIFE") {
+        if (req.funcao === "ALMOXARIFE" || req._id === "517") {
             if (!sairAlmoxarifado) {
                 Almoxarifado.findById(_id).then(almoxarifado => {
                     if (almoxarifado) {

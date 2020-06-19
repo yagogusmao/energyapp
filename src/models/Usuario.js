@@ -9,16 +9,18 @@ const UsuarioSchema = new Schema({
     nome: { type: String, required: true },
     cpf: { type: String, required: true },
     funcao: { type: String, enum: ['PLANEJADOR', 'SUPERVISOR', 'GERENTE', 'ALMOXARIFE', 'GESTOR'], required: true },
-    base: { type: String, enum: ['PB', 'MS', 'BR'], required: true },
+    equipes: [{type: String, enum: ['MANUTENCAO', 'CONSTRUCAO', 'PODA', 'DEOP', 'DECP', 'LINHA VIVA']}],
+    base: { type: String, enum: ['PB', 'MS'], required: true },
     senha: { type: String, required: true }
 });
 
-UsuarioSchema.methods.criar = function criar (_id, nome, cpf, funcao, base, senha) {
+UsuarioSchema.methods.criar = function criar (_id, nome, cpf, funcao, base, senha, equipes) {
     this._id = _id;
     this.nome = nome;
     this.cpf = cpf;
     this.funcao = funcao;
     this.base = base;
+    this.equipes = equipes;
     this.senha = criarSenha(senha);
 }
 

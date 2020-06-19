@@ -5,6 +5,7 @@ const Material = require('./Material');
 
 const AlmoxarifadoSchema = new Schema({
     _id: { type: String, required: true },
+    base: { type: String, required: true, enum: ['MS', 'PB']},
     estoque: { type: Map, of: Number, required: true }, //_id do material aponta pra a quantidade do material
     entradas: [{ material: String, quantidade: Number, vemDe: String, data: Date }],
     saidas: [{ material: String, quantidade: Number, vaiPara: String, servico: String, data: Date, equipe: String }],
@@ -18,8 +19,9 @@ const AlmoxarifadoSchema = new Schema({
     }]
 });
 
-AlmoxarifadoSchema.methods.criar = function criar(_id) {
+AlmoxarifadoSchema.methods.criar = function criar(_id, base) {
     this._id = _id;
+    this.base = base;
     this.estoque = new Map();
 }
 

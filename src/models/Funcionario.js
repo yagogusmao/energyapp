@@ -23,10 +23,11 @@ const FuncionarioSchema = new Schema({
             'ENC. PODA', 'PODADOR', 'GERENTE', 'GESTOR DE AREA'], required: true
     },
     apontamentos: [String],
+    base: { type: String, required: true, enum: ['MS', 'PB']},
     equipe: String
 });
 
-FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio) {
+FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio, base) {
     this._id = _id;
     this.nome = nome;
     this.cpf = cpf;
@@ -35,6 +36,7 @@ FuncionarioSchema.methods.criar = function criar(_id, nome, cpf, lotacao, cargo,
     this.data.inicio = dataInicio;
     this.cargo = cargo;
     this.equipe = "";
+    this.base = base;
 }
 
 FuncionarioSchema.methods.temEquipe = function temEquipe(equipe) {

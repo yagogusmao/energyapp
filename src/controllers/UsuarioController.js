@@ -9,10 +9,10 @@ const Usuario = require('../models/Usuario');
 
 router.route('/')
     .post((req, res) => {
-        const { _id, nome, cpf, funcao, base, senha } = req.body;
+        const { _id, nome, cpf, funcao, base, senha, equipes } = req.body;
         try {
             let usuario = new Usuario();
-            usuario.criar(_id, nome, cpf, funcao, base, senha);
+            usuario.criar(_id, nome, cpf, funcao, base, senha, equipes);
             usuario.save((erro, usuario) => {
                 if (erro) res.status(400).json({ sucesso: false, mensagem: erro });
                 else res.status(201).json({ sucesso: true, mensagem: "Usuário criado com sucesso.", usuario });
@@ -34,7 +34,8 @@ router.route('/login')
                             funcao: usuario.funcao,
                             base: usuario.base,
                             cpf: usuario.cpf,
-                            nome: usuario.nome
+                            nome: usuario.nome,
+                            equipes: usuario.equipes
                         })
                     })
                 } else res.status(400).json({sucesso: false, mensagem: "Senha incorreta."});

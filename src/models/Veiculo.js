@@ -10,11 +10,13 @@ const VeiculoSchema = new Schema({
     modelo: { type: String, enum: ['HILUX', 'STRADA', 'CAMINHAO'], required: true },
     status: { type: String, enum: ['OK', 'OCUPADO', 'QUEBRADO'], required: true },
     apontamentos: [String],
+    base: { type: String, required: true, enum: ['MS', 'PB']},
     equipe: String
 });
 
-VeiculoSchema.methods.criar = function criar(_id, numeracao, kilometragem, modelo, equipe) {
+VeiculoSchema.methods.criar = function criar(_id, numeracao, kilometragem, modelo, base, equipe) {
     this._id = _id;
+    this.base = base;
     this.numeracao = numeracao;
     this.kilometragem = kilometragem;
     this.modelo = modelo;

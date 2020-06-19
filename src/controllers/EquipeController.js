@@ -21,23 +21,25 @@ router.route('/')
     .post((req, res) => {
         try {
             const { _id, tipo, funcionarios, local, veiculo } = req.body;
-            Equipe.findById(_id).then(equipe => {
-                if (!equipe) {
-                    let equipe = new Equipe();
-                    equipe.criar(_id, tipo, funcionarios, local, veiculo).then(() => {
-                        equipe.save((erro, equipe) => {
-                            if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
-                            else res.status(201).json({
-                                sucesso: true,
-                                mensagem: "Equipe criada com sucesso.", equipe
-                            });
-                        })
-                    }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
-                } else res.status(400).json({
-                    sucesso: false,
-                    mensagem: "Já existe uma equipe atrelada a este _id."
-                });
-            })
+            if (req._id === "517") {
+                Equipe.findById(_id).then(equipe => {
+                    if (!equipe) {
+                        let equipe = new Equipe();
+                        equipe.criar(_id, tipo, funcionarios, local, veiculo, req.base).then(() => {
+                            equipe.save((erro, equipe) => {
+                                if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
+                                else res.status(201).json({
+                                    sucesso: true,
+                                    mensagem: "Equipe criada com sucesso.", equipe
+                                });
+                            })
+                        }).catch(erro => res.status(400).json({ sucesso: false, mensagem: erro + "" }));
+                    } else res.status(400).json({
+                        sucesso: false,
+                        mensagem: "Já existe uma equipe atrelada a este _id."
+                    });
+                })
+            } else res.status(400).json({ sucesso: false, mensagem: "Ação permitida apenas para supervisores." });
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
     .get((req, res) => {
@@ -51,10 +53,25 @@ router.route('/')
                 mensagem: "Equipe cadastrada no sistema.", equipe, funcionarios
             })
         })
-        else Equipe.find().then(equipes => res.status(200).json({
-            sucesso: true,
-            mensagem: "Equipe cadastradas no sistema.", equipes
-        }))
+        else if (req._id === "517"){
+            Equipe.find().then(equipes => res.status(200).json({
+                sucesso: true,
+                mensagem: "Equipe cadastradas no sistema.", equipes
+            }))
+        }
+        else{
+            if (req.equipes && req.equipes.length > 0) {
+                const pesquisa = req.equipes.map(equipe => { return { tipo: equipe } })
+                Equipe.find({ base: req.base, $or: pesquisa }).then(equipes => res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Equipe cadastradas no sistema.", equipes
+                }))
+            } else res.status(200).json({
+                sucesso: true,
+                mensagem: "Equipe cadastradas no sistema.", equipes: []
+            })
+
+        }
     })
 
 router.route('/veiculo')
@@ -78,7 +95,7 @@ router.route('/veiculo')
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
-                                Veiculo.find({ equipe: "" }).then(veiculos => {
+                                Veiculo.find({ equipe: "", base: req.base }).then(veiculos => {
                                     res.status(200).json({
                                         sucesso: true,
                                         mensagem: "Veículo da equipe adicionado com sucesso.", equipe, veiculos
@@ -100,7 +117,7 @@ router.route('/veiculo')
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
-                                Veiculo.find({ equipe: "" }).then(veiculos => {
+                                Veiculo.find({ equipe: "", base: req.base }).then(veiculos => {
                                     res.status(200).json({
                                         sucesso: true,
                                         mensagem: "Veículo retirado da equipe com sucesso.", equipe, veiculos
@@ -116,7 +133,7 @@ router.route('/veiculo')
 
 router.route('/funcionario')
     .get((req, res) => {
-        Funcionario.find({ equipe: "" }).then(funcionarios => res.status(200).json({
+        Funcionario.find({ equipe: "", base: req.base }).then(funcionarios => res.status(200).json({
             sucesso: true,
             mensagem: "Funcionários cadastrados no sistema sem equipe.", funcionarios
         }))
@@ -130,7 +147,7 @@ router.route('/funcionario')
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
-                                Funcionario.find({ equipe: "" }).then(funcionariosSemEquipe => res.status(200).json({
+                                Funcionario.find({ equipe: "", base: req.base }).then(funcionariosSemEquipe => res.status(200).json({
                                     sucesso: true, equipe,
                                     mensagem: "Funcionário adicionado com sucesso.", funcionarios: equipe.verFuncionarios(),
                                     funcionariosSemEquipe: funcionariosSemEquipe
@@ -151,7 +168,7 @@ router.route('/funcionario')
                         equipe.save((erro, equipe) => {
                             if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                             else {
-                                Funcionario.find({ equipe: "" }).then(funcionariosSemEquipe => res.status(200).json({
+                                Funcionario.find({ equipe: "", base: req.base }).then(funcionariosSemEquipe => res.status(200).json({
                                     sucesso: true, equipe,
                                     mensagem: "Funcionário retirado com sucesso.", funcionarios: equipe.verFuncionarios(),
                                     funcionariosSemEquipe: funcionariosSemEquipe
@@ -175,7 +192,7 @@ router.route('/verfuncionarios')
 
 router.route('/verVeiculosSemEquipes')
     .get((req, res) => {
-        Veiculo.find({ equipe: "" }).then(veiculos => {
+        Veiculo.find({ equipe: "", base: req.base }).then(veiculos => {
             res.status(200).json({
                 sucesso: true,
                 mensagem: "Veículos sem equipe no sistema.", veiculos
@@ -198,7 +215,62 @@ router.route('/faturamento')
 
 router.route('/faturamentoTodasEquipes')
     .get((req, res) => {
-        Equipe.find().then(equipes => {
+        let pesquisa;
+        console.log(req.nome)
+        if (req.equipes && req.equipes.length > 0) {
+            pesquisa = req.equipes.map(equipe => { return { tipo: equipe } });
+            Equipe.find({ base: req.base, $or: pesquisa }).then(equipes => {
+                Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
+                    let labels = [];
+                    const faturamentoPorEquipes = equipes.map((equipe, i) => {
+                        labels.push(equipe._id);
+                        return {
+                            equipe: equipe._id,
+                            faturamentoHoje: faturamentosEquipes[i].apontamentosHoje.reduce((acumulado, apontamento) =>
+                                acumulado + apontamento.lucro, 0),
+                            faturamentoSemana: faturamentosEquipes[i].apontamentosSemana.reduce((acumulado, apontamento) =>
+                                acumulado + apontamento.lucro, 0),
+                            faturamentoMes: faturamentosEquipes[i].apontamentosMes.reduce((acumulado, apontamento) =>
+                                acumulado + apontamento.lucro, 0),
+                            faturamentoAno: faturamentosEquipes[i].apontamentosAno.reduce((acumulado, apontamento) =>
+                                acumulado + apontamento.lucro, 0),
+                            faturamento: faturamentosEquipes[i].apontamentos.reduce((acumulado, apontamento) =>
+                                acumulado + apontamento.lucro, 0)
+                        }
+                    })
+                    const graficoHoje = faturamentoPorEquipes.map(equipe => equipe.faturamentoHoje);
+                    const graficoSemana = faturamentoPorEquipes.map(equipe => equipe.faturamentoSemana);
+                    const graficoMes = faturamentoPorEquipes.map(equipe => equipe.faturamentoMes);
+                    const graficoAno = faturamentoPorEquipes.map(equipe => equipe.faturamentoAno);
+                    const grafico = faturamentoPorEquipes.map(equipe => equipe.faturamento);
+                    res.status(200).json({
+                        sucesso: true, mensagem: "Faturamento das equipes",
+                        graficos: [
+                            {
+                                labels,
+                                data: graficoHoje
+                            },
+                            {
+                                labels,
+                                data: graficoSemana
+                            },
+                            {
+                                labels,
+                                data: graficoMes
+                            },
+                            {
+                                labels,
+                                data: graficoAno
+                            },
+                            {
+                                labels,
+                                data: grafico
+                            }
+                        ]
+                    })
+                })
+            })
+        } else Equipe.find({ base: req.base }).then(equipes => {
             Promise.all(equipes.map(equipe => equipe.verFaturamento())).then(faturamentosEquipes => {
                 let labels = [];
                 const faturamentoPorEquipes = equipes.map((equipe, i) => {
@@ -226,23 +298,23 @@ router.route('/faturamentoTodasEquipes')
                     sucesso: true, mensagem: "Faturamento das equipes",
                     graficos: [
                         {
-                            labels, 
+                            labels,
                             data: graficoHoje
                         },
                         {
-                            labels, 
+                            labels,
                             data: graficoSemana
                         },
                         {
-                            labels, 
+                            labels,
                             data: graficoMes
                         },
                         {
-                            labels, 
-                            data: graficoAno 
+                            labels,
+                            data: graficoAno
                         },
                         {
-                            labels, 
+                            labels,
                             data: grafico
                         }
                     ]

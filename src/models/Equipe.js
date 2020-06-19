@@ -8,12 +8,14 @@ const currentWeek = require('current-week');
 
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
-    tipo: { type: String, enum: ['MANUTENCAO', 'CONSTRUCAO', 'PODA', 'DEOP', 'DECP'], required: true },
+    tipo: { type: String, enum: ['MANUTENCAO', 'CONSTRUCAO', 'PODA', 'DEOP', 'DECP', 'LINHA VIVA'], required: true },
     funcionarios: { type: Map, required: true }, //[{ _id: { type: String, required: true } }],
     local: {
-        type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA', 'MONTEIRO', 'BOQUEIRAO'],
+        type: String, enum: ['CAMPINA GRANDE', 'JUAZEIRINHO', 'SUME', 'GUARABIRA', 'SOLANEA', 'ESPERANCA', 
+        'MONTEIRO', 'BOQUEIRAO', 'PONTAPORA'],
         required: true
     },
+    base: { type: String, required: true, enum: ['MS', 'PB']},
     status: { type: String, enum: ['OK', 'SEM VEICULO', 'OCUPADA', 'SEM FUNCIONARIOS'], required: true },
     veiculo: String,
     apontamentos: [String],
@@ -23,7 +25,7 @@ const EquipeSchema = new Schema({
     metaAnual: Number,
 });
 
-EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo) {
+EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo, base) {
     try {
         if (funcionarios === undefined) {
             return await validarVeiculo(veiculo).then(async veiculo => {
@@ -31,6 +33,7 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                 this._id = _id;
                 this.tipo = tipo;
                 this.local = local;
+                this.base = base;
                 if (veiculo !== undefined) {
                     this.validarEquipe();
                     this.veiculo = veiculo;
@@ -53,6 +56,7 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                     await Funcionario.findByIdAndUpdate(funcionario._id, { equipe: _id });
                 })
                 this._id = _id;
+                this.base = base;
                 this.tipo = tipo;
                 this.local = local;
                 if (veiculo !== undefined) {
@@ -93,7 +97,7 @@ EquipeSchema.methods.adicionarVeiculo = async function adicionarVeiculo(veiculo)
             if (veiculo) {
                 if (veiculo.equipe === "") {
                     veiculo.equipe = this._id;
-                    if (this.status === "SEM VEICULO" && Array.from(this.funcionarios) > 3) this.status = "OK";
+                    if (this.status === "SEM VEICULO" && Array.from(this.funcionarios).length > 3) this.status = "OK";
                     else this.status = "SEM FUNCIONARIOS";
                     this.veiculo = veiculo._id;
                     await veiculo.save()
