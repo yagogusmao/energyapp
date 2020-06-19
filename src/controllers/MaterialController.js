@@ -45,28 +45,33 @@ router.route('/')
                 mensagem: "Material cadastrado no sistema.", materiais
             }))
         } else {
-            if (_id === "todos") MaterialMS.find().then(materiais => res.status(200).json({
-                sucesso: true,
-                mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais
-            }))
-            else if (unidadeMedida || descricao || codigoClasse || descricaoClasse) {
-                console.log(mongoose.modelNames())
+            if (_id === "todos") {
+                find('materiaisMS', {}, (err, materiais) => res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais
+                }))
+            } else if (unidadeMedida || descricao || codigoClasse || descricaoClasse) {
                 let pesquisa = {};
                 if (unidadeMedida) pesquisa.unidadeMedida = { $regex: unidadeMedida, $options: 'i' };
                 if (descricao) pesquisa.descricao = { $regex: descricao, $options: 'i' };
                 if (codigoClasse) pesquisa.codigoClasse = Number(codigoClasse);
                 if (descricaoClasse) pesquisa.descricaoClasse = { $regex: descricaoClasse, $options: 'i' };
-                mongoose.model('materiaisMS').find(pesquisa).then(materiais => {
+                find('materiaisMS', pesquisa, (err, materiais) => {
                     res.status(200).json({ sucesso: true, mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais })
                 })
-            } else MaterialMS.find({ _id: _id }).then(materiais => res.status(200).json({
+            } else find('materiaisMS', {_id: _id}, (err, materiais) => res.status(200).json({
                 sucesso: true,
                 mensagem: "Material cadastrado no sistema.", materiais
             }))
         }
-        
+
     })
 
+function find(name, query, cb) {
+    mongoose.connection.db.collection(name, function (err, collection) {
+        collection.find(query).toArray(cb);
+    });
+}
 router.route('/codigosClasses')
     .get((req, res) => {
         CodigoMateriais.find().then(codigos => res.json(codigos))
