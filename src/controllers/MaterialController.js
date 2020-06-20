@@ -59,12 +59,14 @@ router.route('/')
                 find('materiaisMS', pesquisa, (err, materiais) => {
                     res.status(200).json({ sucesso: true, mensagem: "Materiais cadastradas no sistema.", quantidade: materiais.length, materiais })
                 })
-            } else find('materiaisMS', {_id: _id}, (err, materiais) => res.status(200).json({
-                sucesso: true,
-                mensagem: "Material cadastrado no sistema.", materiais
-            }))
+            } else find('materiaisMS', { _id: Number(_id) }, (err, materiais) =>
+                res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Material cadastrado no sistema.",
+                    materiais
+                })
+            )
         }
-
     })
 
 function find(name, query, cb) {

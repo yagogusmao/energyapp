@@ -12,7 +12,7 @@ router.route('/')
     }
      */
     .post((req, res) => {
-        if (req._id === "517") {
+        if (req._id === "517" || req.funcao === "ALMOXARIFE") {
             const { _id, base } = req.body;
             let almoxarifado = new Almoxarifado();
             almoxarifado.criar(_id, base);
