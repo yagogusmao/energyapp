@@ -246,4 +246,11 @@ const data = () => {
     }
 }
 
+EquipeSchema.methods.definirMeta = function definirMeta (metaDiaria, metaSemanal, metaMensal, metaAnual){
+    this.metaDiaria = metaDiaria;
+    this.metaSemanal = metaSemanal;
+    this.metaMensal = metaMensal;
+    this.metaAnual = metaAnual;
+}
+
 module.exports = moongose.model('Equipe', EquipeSchema);

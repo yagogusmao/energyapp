@@ -4,6 +4,7 @@ const Schema = moongose.Schema;
 const Atividade = require('./Atividade');
 const Equipe = require('./Equipe');
 const Veiculo = require('./Veiculo');
+const moment = require('moment');
 
 const ApontamentoSchema = new Schema({
     tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHAVIVA"], required: true },
@@ -28,6 +29,7 @@ const ApontamentoSchema = new Schema({
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
     data: { type: Date, required: true },
+    dataFinal: String,
     local: {
         saida: { type: String, required: true },
         chegada: { type: String, required: true }
@@ -77,6 +79,7 @@ ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, 
                 this.veiculo.kilometragem.total = this.veiculo.kilometragem.fim - this.veiculo.kilometragem.inicio;
                 this.PgCp = PgCp;
                 this.hora.fim = new Date();
+                this.dataFinal = moment(this.hora.fim).format("DD/MM/YYYY");
                 this.status = "FINALIZADO";
                 this.atividades = atividades;
             }).catch(erro => { throw erro });

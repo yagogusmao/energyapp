@@ -487,7 +487,7 @@ router.route('/faturamentoDECP')
             })
         })
     })
-    
+
 router.route('/faturamentoDEOP')
     .get((req, res) => {
         Equipe.find({ base: req.base, tipo: "DEOP" }).then(equipes => {
@@ -540,6 +540,20 @@ router.route('/faturamentoDEOP')
                     ]
                 })
             })
+        })
+    })
+
+router.route('/meta')
+    .put((req, res) => {
+        const { _id, metaDiaria, metaSemanal, metaMensal, metaAnual } = req.body;
+        Equipe.findById(_id).then(equipe => {
+            if (equipe) {
+                equipe.definirMeta(metaDiaria, metaSemanal, metaMensal, metaAnual);
+                equipe.save(erro => {
+                    if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
+                    else res.status(200).json({ sucesso: true, mensagem: "Metas definidas com sucesso.", equipe })
+                })
+            } else res.status(400).json({ sucesso: false, mensagem: "Equipe não encontrada." })
         })
     })
 module.exports = router;
