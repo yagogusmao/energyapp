@@ -214,4 +214,17 @@ router.route('/listarEncarregados')
         })
     })
 
+router.route('/verAtividades')
+    .get((req, res) => {
+        const { _id } = queryString.parse(req._parsedUrl.query);
+        Apontamento.findById(_id).then(apontamento => {
+            if (apontamento) {
+                apontamento.verAtividades().then(atividades => res.status(200).json({
+                    sucesso: true, mensagem: "Atividades retornadas com sucesso", atividades
+                }))
+            } else res.status(400).json({sucesso: false, mensagem: "Apontamento não encontrado."})
+        })
+
+    })
+
 module.exports = router;

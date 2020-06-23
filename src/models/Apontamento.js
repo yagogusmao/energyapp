@@ -128,4 +128,18 @@ const validarAtividades = async (atividades) => {
         });
 }
 
+ApontamentoSchema.methods.verAtividades = function verAtividades() {
+    const atividades = this.atividades.map(atividade => Atividade.findById(atividade._id));
+    return Promise.all(atividades).then(atividades => {
+        return this.atividades.map((atividade, i) => {return {
+            _id: atividade._id,
+            quantidade: atividade.quantidade,
+            nome: atividades[i].nome,
+            tipo: atividades[i].tipo,
+            valor: atividades[i].valor
+        }})
+    })
+
+}
+
 module.exports = moongose.model('Apontamento', ApontamentoSchema);
