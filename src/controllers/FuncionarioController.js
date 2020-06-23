@@ -7,7 +7,7 @@ const Funcionario = require('../models/Funcionario');
 router.route('/')
     .post((req, res) => {
         try {
-            if (req._id === "517") {
+            if (req._id === "517" || req.funcao === "SUPERVISOR") {
                 const { _id, nome, cpf, lotacao, cargo, telefone, dataInicio } = req.body;
                 let funcionario = new Funcionario();
                 funcionario.criar(_id, nome, cpf, lotacao, cargo, telefone, dataInicio, req.base);
