@@ -70,7 +70,6 @@ router.route('/')
                 sucesso: true,
                 mensagem: "Equipe cadastradas no sistema.", equipes: []
             })
-
         }
     })
 
