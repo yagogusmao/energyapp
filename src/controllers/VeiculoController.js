@@ -7,7 +7,7 @@ const Veiculo = require('../models/Veiculo');
 router.route('/')
     .post((req, res) => {
         try {
-            if (req._id === "517") {
+            if (req._id === "517" || req.funcao === "SUPERVISOR") {
                 const { _id, numeracao, kilometragem, modelo } = req.body;
                 let veiculo = new Veiculo();
                 veiculo.criar(_id, numeracao, kilometragem, modelo, req.base);
