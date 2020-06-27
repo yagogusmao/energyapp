@@ -7,7 +7,7 @@ const Veiculo = require('./Veiculo');
 const moment = require('moment');
 
 const ApontamentoSchema = new Schema({
-    tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHAVIVA"], required: true },
+    tipo: { type: String, enum: ["MANUTENCAO", "CONSTRUCAO", "DEOP", "PODA", "PERDAS", "LINHA VIVA"], required: true },
     pessoa: {
         supervisor: { type: String, required: true },
         tecnicoEnergisa: String,
