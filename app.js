@@ -17,7 +17,7 @@ app.all('/*', function (req, res, next) {
 });
 
 const port = process.env.PORT || 8080;
-const config = require('./src/config/config');
+require('./src/config/config');
 
 app.use(logger('dev'));
 app.use(express.json());

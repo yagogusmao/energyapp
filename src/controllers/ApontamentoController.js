@@ -27,10 +27,13 @@ router.route('/')
     .post((req, res) => {
         try {
             if (req.funcao === "SUPERVISOR" || req._id === "517") {
-                const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, localSaida, codigoObra } = req.body;
+                const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
+                    localSaida, codigoObra, subestacao, area, alimentador, origemOS, 
+                    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao } = req.body;
                 let apontamento = new Apontamento();
-                apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, localSaida,
-                    codigoObra, req.base)
+                apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
+                    localSaida, codigoObra, req.base, subestacao, area, alimentador, origemOS, 
+                    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao)
                     .then(() => {
                         apontamento.save((erro, apontamento) => {
                             if (!erro) res.status(201).json({

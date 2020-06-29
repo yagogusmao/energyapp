@@ -12,15 +12,27 @@ router.route('/')
         const { _id, unidadeMedida, descricao, codigoClasse, descricaoClasse } = req.body;
         if (req.funcao === "ALMOXARIFE") {
             try {
-                let material = new Material();
-                material.criar(_id, unidadeMedida, descricao, codigoClasse, descricaoClasse);
-                material.save((erro, material) => {
-                    if (!erro) res.status(201).json({
-                        sucesso: true,
-                        messagem: "Material salvo com sucesso.", material
-                    });
-                    else res.status(400).json({ sucesso: false, mensagem: erro.message });
-                })
+                if (req.base === "PB") {
+                    let material = new Material();
+                    material.criar(_id, unidadeMedida, descricao, codigoClasse, descricaoClasse);
+                    material.save((erro, material) => {
+                        if (!erro) res.status(201).json({
+                            sucesso: true,
+                            messagem: "Material salvo com sucesso.", material
+                        });
+                        else res.status(400).json({ sucesso: false, mensagem: erro.message });
+                    })
+                } else if (req.base === "MS") {
+                    let material = new MaterialMS();
+                    material.criar(_id, unidadeMedida, descricao, codigoClasse, descricaoClasse);
+                    material.save((erro, material) => {
+                        if (!erro) res.status(201).json({
+                            sucesso: true,
+                            messagem: "Material salvo com sucesso.", material
+                        });
+                        else res.status(400).json({ sucesso: false, mensagem: erro.message });
+                    })
+                } else res.status(400).json({ sucesso: false, mensagem: "Conta desatualizada, atualize sua base." })
             } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
         } else res.status(400).json({ sucesso: false, mensagem: "Ação permitida apenas para almoxarifes." })
     })

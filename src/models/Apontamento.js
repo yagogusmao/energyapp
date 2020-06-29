@@ -21,14 +21,25 @@ const ApontamentoSchema = new Schema({
             total: Number
         }
     },
-    base: { type: String, required: true, enum: ['MS', 'PB']},
+    base: { type: String, required: true, enum: ['MS', 'PB'] },
     codigoObra: String,
     PgCp: String,
+    subestacao: String,
+    area: String,
+    alimentador: String,
+    origemOS: String,
+    quantidadePlanejada: Number,
+    quantidadeExecutada: Number,
+    recolha: Boolean,
+    observacao: String,
+    tensao: String,
     pes: String,
     equipe: { type: String, required: true },
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
     data: { type: Date, required: true },
+    horarioInicio: String,
+    horarioFinal: String,
     dataFinal: String,
     local: {
         saida: { type: String, required: true },
@@ -43,13 +54,25 @@ const ApontamentoSchema = new Schema({
     status: { type: String, enum: ["INICIADO", "FINALIZADO"], required: true }
 });
 
-ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe,
-    cidade, endereco, localSaida, codigoObra, base) {
+ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes,
+    equipe, cidade, endereco, localSaida, codigoObra, base, subestacao, area, alimentador, origemOS, 
+    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
             const veiculo = await Veiculo.findById(equipe.veiculo);
             this.codigoObra = codigoObra;
             this.tipo = tipo;
+            if (this.tipo === "PODA") {
+                this.subestacao = subestacao;
+                this.area = area;
+                this.alimentador = alimentador;
+                this.origemOS = origemOS;
+                this.quantidadePlanejada = quantidadePlanejada;
+                this.quantidadeExecutada = quantidadeExecutada;
+                this.recolha = recolha;
+                this.tensao = tensao;
+            }
+            this.observacao = observacao;
             this.pessoa.supervisor = pessoaSupervisor;
             this.pessoa.encarregado = pessoaEncarregado;
             this.veiculo.placa = veiculo;
@@ -68,7 +91,8 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
     } catch (erro) { throw erro }
 }
 
-ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades) {
+ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, veiculoKmFim, PgCp,
+    atividades, horarioInicio, horarioFinal) {
     try {
         return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim), validarAtividades(atividades)])
             .then(promessas => {
@@ -82,6 +106,8 @@ ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, 
                 this.dataFinal = moment(this.hora.fim).format("DD/MM/YYYY");
                 this.status = "FINALIZADO";
                 this.atividades = atividades;
+                this.horarioInicio = horarioInicio;
+                this.horarioFinal = horarioFinal;
             }).catch(erro => { throw erro });
     } catch (erro) { throw erro }
 }
@@ -131,13 +157,15 @@ const validarAtividades = async (atividades) => {
 ApontamentoSchema.methods.verAtividades = function verAtividades() {
     const atividades = this.atividades.map(atividade => Atividade.findById(atividade._id));
     return Promise.all(atividades).then(atividades => {
-        return this.atividades.map((atividade, i) => {return {
-            _id: atividade._id,
-            quantidade: atividade.quantidade,
-            nome: atividades[i].nome,
-            tipo: atividades[i].tipo,
-            valor: atividades[i].valor
-        }})
+        return this.atividades.map((atividade, i) => {
+            return {
+                _id: atividade._id,
+                quantidade: atividade.quantidade,
+                nome: atividades[i].nome,
+                tipo: atividades[i].tipo,
+                valor: atividades[i].valor
+            }
+        })
     })
 
 }
