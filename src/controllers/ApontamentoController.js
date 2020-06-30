@@ -100,7 +100,6 @@ router.route('/')
                 res.status(200).json({ sucesso: true, apontamentos }))
         else if (opcao === "FINALIZADO") Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => {
             const data = verDatas();
-            console.log(data)
             const construcao = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO"});
             const construcaoHoje = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
             const construcaoSemana = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
@@ -131,7 +130,6 @@ router.route('/')
             const deopSemana = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
             const deopMes = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
             const deopAno = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            console.log(podaSemana)
             res.status(200).json({
                 sucesso: true,
                 mensagem: "Apontamentos cadastrados no sistema.",

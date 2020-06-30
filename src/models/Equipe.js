@@ -75,7 +75,7 @@ EquipeSchema.methods.validarEquipe = async function validarEquipe() {
     if (this.funcionarios === null || this.funcionarios === undefined || this.funcionarios === {})
         this.status = 'SEM FUNCIONARIOS';
     else {
-        if (Array.from(this.funcionarios).length >= 4) {
+        if (Array.from(this.funcionarios).length >= 2) {
             if (this.veiculo !== "") this.status = 'OK';
             else this.status = 'SEM VEICULO';
         } else this.status = 'SEM FUNCIONARIOS';
@@ -212,13 +212,14 @@ EquipeSchema.methods.verFuncionarios = function verFuncionarios() {
 EquipeSchema.methods.verFaturamento = function verFaturamento () {
     const Apontamento = require('./Apontamento');
     return Promise.all(this.apontamentos.map(apontamento => Apontamento.findById(apontamento))).then(apontamentos => {
-        const apontamentosHoje = apontamentos.filter(apontamento => (apontamento.hora.fim > data().hoje && apontamento.hora.fim < data().amanha));
+        const datas = data();
+        const apontamentosHoje = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.hoje && apontamento.hora.fim < datas.amanha));
         const lucroHoje = apontamentosHoje.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
-        const apontamentosSemana = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioSemana && apontamento.hora.fim < data().finalSemana));
+        const apontamentosSemana = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.inicioSemana && apontamento.hora.fim < datas.finalSemana));
         const lucroSemana = apontamentosSemana.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
-        const apontamentosMes = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioMes && apontamento.hora.fim < data().finalMes));
+        const apontamentosMes = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.inicioMes && apontamento.hora.fim < datas.finalMes));
         const lucroMes = apontamentosMes.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
-        const apontamentosAno = apontamentos.filter(apontamento => (apontamento.hora.fim > data().inicioAno && apontamento.hora.fim < data().finalAno));
+        const apontamentosAno = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.inicioAno && apontamento.hora.fim < datas.finalAno));
         const lucroAno = apontamentosAno.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
         const lucro = apontamentos.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
         return {
@@ -235,14 +236,14 @@ const data = () => {
     const mes = new Date().getMonth() > 9 ? new Date().getMonth().toString() : '0' + (new Date().getMonth() + 1).toString();
     const ano = new Date().getFullYear().toString();
     return {
-        hoje: new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').format()), 
-        amanha:  new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').add(1, 'day').format()),
-        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0])-1}`).subtract(3, 'hours').format()), 
-        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getLastWeekDay().split('.')[0])-1}`).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()), 
-        inicioMes: new Date(moment(`${ano}${mes}01`).subtract(3, 'hours').format()), 
-        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
-        inicioAno: new Date(moment(`${ano}0101`).subtract(3, 'hours').format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
+        amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
+        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).format()),
+        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).add(7, 'days').add(23, 'hours').add(59, 'minutes').add(59, 'seconds')),
+        inicioMes: new Date(moment(`${ano}${mes}01`).format()),
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        inicioAno: new Date(moment(`${ano}0101`).format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
     }
 }
 
