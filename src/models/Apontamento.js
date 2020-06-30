@@ -56,7 +56,7 @@ const ApontamentoSchema = new Schema({
 
 ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes,
     equipe, cidade, endereco, localSaida, codigoObra, base, subestacao, area, alimentador, origemOS, 
-    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao) {
+    quantidadePlanejada, quantidadeExecutada, recolha, tensao) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
             const veiculo = await Veiculo.findById(equipe.veiculo);
@@ -72,7 +72,6 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
                 this.recolha = recolha;
                 this.tensao = tensao;
             }
-            this.observacao = observacao;
             this.pessoa.supervisor = pessoaSupervisor;
             this.pessoa.encarregado = pessoaEncarregado;
             this.veiculo.placa = veiculo;
@@ -92,7 +91,7 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
 }
 
 ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, veiculoKmFim, PgCp,
-    atividades, horarioInicio, horarioFinal) {
+    atividades, horarioInicio, horarioFinal, observacao) {
     try {
         return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim), validarAtividades(atividades)])
             .then(promessas => {
@@ -108,6 +107,7 @@ ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, 
                 this.atividades = atividades;
                 this.horarioInicio = horarioInicio;
                 this.horarioFinal = horarioFinal;
+                this.observacao = observacao;
             }).catch(erro => { throw erro });
     } catch (erro) { throw erro }
 }

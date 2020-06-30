@@ -29,11 +29,11 @@ router.route('/')
             if (req.funcao === "SUPERVISOR" || req._id === "517") {
                 const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
                     localSaida, codigoObra, subestacao, area, alimentador, origemOS, 
-                    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao } = req.body;
+                    quantidadePlanejada, quantidadeExecutada, recolha, tensao } = req.body;
                 let apontamento = new Apontamento();
                 apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
                     localSaida, codigoObra, req.base, subestacao, area, alimentador, origemOS, 
-                    quantidadePlanejada, quantidadeExecutada, recolha, observacao, tensao)
+                    quantidadePlanejada, quantidadeExecutada, recolha, tensao)
                     .then(() => {
                         apontamento.save((erro, apontamento) => {
                             if (!erro) res.status(201).json({
@@ -67,11 +67,11 @@ router.route('/')
     .put((req, res) => {
         try {
             if (req.funcao === "SUPERVISOR" || req._id === "517") {
-                const { _id, tecnicoEnergisa, veiculoKmFim, PgCp, atividades } = req.body;
+                const { _id, tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao } = req.body;
                 Apontamento.findById(_id).then(apontamento => {
                     if (apontamento) {
                         if (apontamento.status === "INICIADO") {
-                            apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades).then(() => {
+                            apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao).then(() => {
                                 apontamento.save((erro, apontamento) => {
                                     if (!erro) res.status(200).json({
                                         sucesso: true,
@@ -100,6 +100,7 @@ router.route('/')
                 res.status(200).json({ sucesso: true, apontamentos }))
         else if (opcao === "FINALIZADO") Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => {
             const data = verDatas();
+            console.log(data)
             const construcao = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO"});
             const construcaoHoje = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
             const construcaoSemana = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
@@ -130,6 +131,7 @@ router.route('/')
             const deopSemana = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
             const deopMes = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
             const deopAno = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
+            console.log(podaSemana)
             res.status(200).json({
                 sucesso: true,
                 mensagem: "Apontamentos cadastrados no sistema.",
@@ -155,15 +157,16 @@ function verDatas() {
     const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + (new Date().getDate() + 1).toString();
     const mes = new Date().getMonth() > 9 ? new Date().getMonth().toString() : '0' + (new Date().getMonth() + 1).toString();
     const ano = new Date().getFullYear().toString();
+
     return {
-        hoje: new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').format()),
-        amanha: new Date(moment(`${ano}${mes}${dia}`).subtract(3, 'hours').add(1, 'day').format()),
-        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).subtract(3, 'hours').format()),
-        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getLastWeekDay().split('.')[0]) - 1}`).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
-        inicioMes: new Date(moment(`${ano}${mes}01`).subtract(3, 'hours').format()),
-        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
-        inicioAno: new Date(moment(`${ano}0101`).subtract(3, 'hours').format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(20, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
+        amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
+        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).format()),
+        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).add(7, 'days').add(23, 'hours').add(59, 'minutes').add(59, 'seconds')),
+        inicioMes: new Date(moment(`${ano}${mes}01`).format()),
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        inicioAno: new Date(moment(`${ano}0101`).format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
     }
 }
 
