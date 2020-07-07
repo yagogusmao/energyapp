@@ -27,12 +27,12 @@ router.route('/')
     .post((req, res) => {
         try {
             if (req.funcao === "SUPERVISOR" || req._id === "517") {
-                const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
-                    localSaida, codigoObra, subestacao, area, alimentador, origemOS, 
+                const { tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco,
+                    localSaida, codigoObra, subestacao, area, alimentador, origemOS,
                     quantidadePlanejada, quantidadeExecutada, recolha, tensao } = req.body;
                 let apontamento = new Apontamento();
-                apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco, 
-                    localSaida, codigoObra, req.base, subestacao, area, alimentador, origemOS, 
+                apontamento.iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes, equipe, cidade, endereco,
+                    localSaida, codigoObra, req.base, subestacao, area, alimentador, origemOS,
                     quantidadePlanejada, quantidadeExecutada, recolha, tensao)
                     .then(() => {
                         apontamento.save((erro, apontamento) => {
@@ -100,36 +100,36 @@ router.route('/')
                 res.status(200).json({ sucesso: true, apontamentos }))
         else if (opcao === "FINALIZADO") Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => {
             const data = verDatas();
-            const construcao = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO"});
-            const construcaoHoje = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const construcaoSemana = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const construcaoMes = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const construcaoAno = construcao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            const manutencao = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "MANUTENCAO"});
-            const manutencaoHoje = manutencao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const manutencaoSemana = manutencao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const manutencaoMes = manutencao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const manutencaoAno = manutencao.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            const linhaviva = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "LINHA VIVA"});
-            const linhavivaHoje = linhaviva.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const linhavivaSemana = linhaviva.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const linhavivaMes = linhaviva.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const linhavivaAno = linhaviva.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            const poda = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "PODA"});
-            const podaHoje = poda.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const podaSemana = poda.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const podaMes = poda.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const podaAno = poda.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            const decp = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DECP"})
-            const decpHoje = decp.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const decpSemana = decp.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const decpMes = decp.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const decpAno = decp.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
-            const deop = apontamentos.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DEOP"});
-            const deopHoje = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha)})
-            const deopSemana = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana)})
-            const deopMes = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)})
-            const deopAno = deop.filter(apontamento => {apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno)})
+            const construcao = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO" });
+            const construcaoHoje = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const construcaoSemana = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const construcaoMes = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const construcaoAno = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            const manutencao = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "MANUTENCAO" });
+            const manutencaoHoje = manutencao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const manutencaoSemana = manutencao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const manutencaoMes = manutencao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const manutencaoAno = manutencao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            const linhaviva = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "LINHA VIVA" });
+            const linhavivaHoje = linhaviva.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const linhavivaSemana = linhaviva.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const linhavivaMes = linhaviva.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const linhavivaAno = linhaviva.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            const poda = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "PODA" });
+            const podaHoje = poda.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const podaSemana = poda.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const podaMes = poda.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const podaAno = poda.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            const decp = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DECP" })
+            const decpHoje = decp.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const decpSemana = decp.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const decpMes = decp.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const decpAno = decp.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            const deop = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DEOP" });
+            const deopHoje = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
+            const deopSemana = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
+            const deopMes = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const deopAno = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
             res.status(200).json({
                 sucesso: true,
                 mensagem: "Apontamentos cadastrados no sistema.",
@@ -151,20 +151,22 @@ router.route('/')
         }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
     })
 
-function verDatas() {
-    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + (new Date().getDate() + 1).toString();
-    const mes = new Date().getMonth() > 9 ? new Date().getMonth().toString() : '0' + (new Date().getMonth() + 1).toString();
+const verDatas = () => {
+    const firstDayWeek = currentWeek.getFirstWeekDay();
+    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + new Date().getDate().toString();
+    const mes = new Date().getMonth() > 9 ? (new Date().getMonth() + 1).toString() : '0' + (new Date().getMonth() + 1).toString();
+    const mesSemana = Number(firstDayWeek.split('.')[1]) + 1 > 9 ? `${Number(firstDayWeek.split('.')[1]) + 1}` : `0${Number(firstDayWeek.split('.')[1]) + 1}`;
+    const diaSemana = Number(firstDayWeek.split('.')[0]) - 1 > 9 ? `${Number(firstDayWeek.split('.')[0]) - 1}` : `0${Number(firstDayWeek.split('.')[0]) - 1}`;
     const ano = new Date().getFullYear().toString();
-
     return {
         hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
         amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
-        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).format()),
-        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).add(7, 'days').add(23, 'hours').add(59, 'minutes').add(59, 'seconds')),
+        inicioSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).format()),
+        finalSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).add(7, 'days').format()),
         inicioMes: new Date(moment(`${ano}${mes}01`).format()),
-        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(24, 'hours').format()),
         inicioAno: new Date(moment(`${ano}0101`).format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format()),
     }
 }
 
@@ -226,7 +228,7 @@ router.route('/verAtividades')
                 apontamento.verAtividades().then(atividades => res.status(200).json({
                     sucesso: true, mensagem: "Atividades retornadas com sucesso", atividades
                 }))
-            } else res.status(400).json({sucesso: false, mensagem: "Apontamento não encontrado."})
+            } else res.status(400).json({ sucesso: false, mensagem: "Apontamento não encontrado." })
         })
 
     })

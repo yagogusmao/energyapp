@@ -213,6 +213,7 @@ EquipeSchema.methods.verFaturamento = function verFaturamento () {
     const Apontamento = require('./Apontamento');
     return Promise.all(this.apontamentos.map(apontamento => Apontamento.findById(apontamento))).then(apontamentos => {
         const datas = data();
+        console.log(datas)
         const apontamentosHoje = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.hoje && apontamento.hora.fim < datas.amanha));
         const lucroHoje = apontamentosHoje.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
         const apontamentosSemana = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.inicioSemana && apontamento.hora.fim < datas.finalSemana));
@@ -232,18 +233,21 @@ EquipeSchema.methods.verFaturamento = function verFaturamento () {
 }
 
 const data = () => {
-    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + (new Date().getDate() + 1).toString();
-    const mes = new Date().getMonth() > 9 ? new Date().getMonth().toString() : '0' + (new Date().getMonth() + 1).toString();
+    const firstDayWeek = currentWeek.getFirstWeekDay();
+    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + new Date().getDate().toString();
+    const mes = new Date().getMonth() > 9 ? (new Date().getMonth() + 1).toString() : '0' + (new Date().getMonth() + 1).toString();
+    const mesSemana = Number(firstDayWeek.split('.')[1]) + 1 > 9 ? `${Number(firstDayWeek.split('.')[1]) + 1}` : `0${Number(firstDayWeek.split('.')[1]) + 1}`;
+    const diaSemana = Number(firstDayWeek.split('.')[0]) - 1 > 9 ? `${Number(firstDayWeek.split('.')[0]) - 1}` : `0${Number(firstDayWeek.split('.')[0]) - 1}`;
     const ano = new Date().getFullYear().toString();
     return {
         hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
         amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
-        inicioSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).format()),
-        finalSemana: new Date(moment(`${ano}${mes}${Number(currentWeek.getFirstWeekDay().split('.')[0]) - 1}`).add(7, 'days').add(23, 'hours').add(59, 'minutes').add(59, 'seconds')),
+        inicioSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).format()),
+        finalSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).add(7, 'days').format()),
         inicioMes: new Date(moment(`${ano}${mes}01`).format()),
-        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(24, 'hours').format()),
         inicioAno: new Date(moment(`${ano}0101`).format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(23, 'hours').add(59, 'minutes').add(59, 'seconds').format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format()),
     }
 }
 
