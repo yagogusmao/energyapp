@@ -9,8 +9,7 @@ const FuncionarioSchema = new Schema({
     cpf: { type: String, required: true },
     telefone: { type: String, required: true },
     lotacao: {
-        type: String, enum: ['CAMPINA GRANDE', 'SERRA BRANCA', 'SOLANEA', 'ESPERANCA', 'GUARABIRA',
-            'ARARUNA', 'PICUI', 'SUME', 'JUAZEIRINHO'], required: true
+        type: String, required: true
     },
     data: {
         inicio: { type: String, required: true },
