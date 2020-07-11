@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 var Atividade = require('../models/Atividade');
+const queryString = require('query-string')
 
 router.route('/')
     /**
@@ -29,11 +30,27 @@ router.route('/')
             } else res.status(400).json({ sucesso: false, mensagem: "Ação permitida apenas para supervisores." });
         } catch (erro) { res.status(400).json({ sucesso: false, mensagem: erro + "" }) }
     })
-    .get((req, res) => {
-        Atividade.find().then(atividades => res.status(200).json({
+    .get(async (req, res) => {
+        const { nome } = queryString.parse(req._parsedUrl.query);
+        let atividades;
+        if (nome === "all") atividades = await Atividade.find();
+        else atividades = await Atividade.find({ nome: { $regex: nome, $options: 'i' } });
+
+        let atividadesShow = [];
+        if (req.equipes.includes('CONSTRUCAO')) {
+            atividadesShow = atividades
+                .filter(atividade => atividade._id.includes("EY"))
+                .sort((a, b) => Number(a._id.split("EY")[1]) - Number(b._id.split("EY")[1]));
+        } else if (req.equipes.includes('LINHAVIVA')) {
+            atividadesShow = atividades
+                .filter(atividade =>
+                    (atividade._id.includes("LV") || atividade._id === "EY174" || atividade._id === "EY173"))
+                .sort((a, b) => Number(a._id.split("LV")[1]) - Number(b._id.split("LV")[1]));
+        }
+        res.status(200).json({
             sucesso: true,
-            mensagem: "Atividades cadastradas no sistema.", atividades
-        }))
+            mensagem: "Atividades cadastradas no sistema.", atividades: atividadesShow
+        })
     })
 
 module.exports = router;

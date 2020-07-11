@@ -12,7 +12,6 @@ module.exports = (req, res, next) => {
     if(!partes.length === 2) return res.status(401).json({sucesso: false, message: "Token inválido."});
 
     const [ schema, token ] = partes;
-
     jwt.verify(token, process.env.SECRET, (erro, descriptografado) => {
         if(erro) return res.status(401).json({sucesso: false, message: erro});
 

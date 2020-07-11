@@ -213,7 +213,6 @@ EquipeSchema.methods.verFaturamento = function verFaturamento () {
     const Apontamento = require('./Apontamento');
     return Promise.all(this.apontamentos.map(apontamento => Apontamento.findById(apontamento))).then(apontamentos => {
         const datas = data();
-        console.log(datas)
         const apontamentosHoje = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.hoje && apontamento.hora.fim < datas.amanha));
         const lucroHoje = apontamentosHoje.reduce((acumulado, apontamento) => acumulado + apontamento.lucro, 0);
         const apontamentosSemana = apontamentos.filter(apontamento => (apontamento.hora.fim > datas.inicioSemana && apontamento.hora.fim < datas.finalSemana));
