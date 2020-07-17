@@ -4,6 +4,7 @@ const queryString = require('query-string');
 
 const Apontamento = require('../models/Apontamento');
 const Funcionario = require('../models/Funcionario');
+const Equipe = require('../models/Equipe');
 const moment = require('moment');
 const currentWeek = require('current-week');
 
@@ -98,7 +99,7 @@ router.route('/')
         if (opcao === "INICIADO")
             Apontamento.find({ status: opcao, base: req.base }).then(apontamentos =>
                 res.status(200).json({ sucesso: true, apontamentos }))
-        else if (opcao === "FINALIZADO") Apontamento.find({ status: opcao, base: req.base }).then(apontamentos => {
+        else if (opcao === "FINALIZADO") Apontamento.find({ status: opcao, base: req.base }).then(async apontamentos => {
             const data = verDatas();
             const construcao = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO" });
             const construcaoHoje = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.hoje && apontamento.hora.fim < data.amanha) })
@@ -130,6 +131,194 @@ router.route('/')
             const deopSemana = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
             const deopMes = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
             const deopAno = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+
+            const realizado = construcaoMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
+                manutencaoMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
+                    linhavivaMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
+                        podaMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
+                            decpMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
+                                deopMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0))))));
+            const equipes = await Equipe.find({ base: req.base });
+            const equipesApuradas = equipes.length;
+            const equipesAlcancandoMeta = equipes.reduce((acumulado, equipe) => {
+                if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                    .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                    return acumulado = acumulado + 1;
+                else return acumulado;
+            }, 0)
+
+            const realizadoEquipes = equipes.map(equipe =>
+                apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                    .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)
+            )
+
+            const metaAcumuladaEquipes = equipes.map(equipe =>
+                equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0
+            )
+
+            const oportunidade = equipes.reduce((acumulado, equipe) => {
+                if (equipe.metaMensal) return acumulado += equipe.metaMensal
+                else return acumulado;
+            }, 0);
+
+            const metaMensal = 50000;
+            const metaAcumulada = metaMensal / new Date().getDate();
+            const diferenca = metaAcumulada - realizado;
+
+            const graficoConstrucao = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "CONSTRUCAO"
+            }).map(equipe => {
+                return [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            }
+            )
+            const graficoManutencao = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "MANUTENCAO"
+            }).map(equipe =>
+                [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            )
+            const graficoLinhaviva = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "LINHA VIVA"
+            }).map(equipe =>
+                [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            )
+            const graficoPoda = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "PODA"
+            }).map(equipe =>
+                [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            )
+            const graficoDECP = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "DECP"
+            }).map(equipe =>
+                [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            )
+            const graficoDEOP = equipes.filter((equipe, i) => {
+                equipe.i = i;
+                return equipe.tipo === "DEOP"
+            }).map(equipe =>
+                [equipe._id,
+                realizadoEquipes[equipe.i],
+                realizadoEquipes[equipe.i].toString(),
+                realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
+                metaAcumuladaEquipes[equipe.i],
+                equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
+            )
+
+            const global = [{ metaMensal, metaAcumulada, realizado, equipesApuradas, equipesAlcancandoMeta, diferenca, oportunidade }];
+
+            const segmentos = [{
+                segmento: "LINHA VIVA LEVE",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA VIVA LEVE";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA VIVA LEVE";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "LINHA VIVA PESADA",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA VIVA PESADA";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA VIVA PESADA";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "LINHA MORTA LEVE",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA MORTA LEVE";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA MORTA LEVE";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "LINHA MORTA PESADA",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA MORTA PESADA";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "LINHA MORTA PESADA";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "CONSTRUCAO",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "CONSTRUCAO";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "CONSTRUCAO";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "PODA URBANA",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "PODA URBANA";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "PODA URBANA";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }, {
+                segmento: "PODA RURAL",
+                metaAcumulada: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "PODA RURAL";
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                realizado: equipes.filter((equipe, i) => {
+                    equipe.i = i;
+                    return equipe.segmento === "PODA RURAL";
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+            }]
+
+            const grafico = graficoConstrucao.concat(graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP);
+
+            grafico.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal']);
+            graficoConstrucao.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+            graficoManutencao.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+            graficoLinhaviva.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+            graficoPoda.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+            graficoDECP.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+            graficoDEOP.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal'])
+
             res.status(200).json({
                 sucesso: true,
                 mensagem: "Apontamentos cadastrados no sistema.",
@@ -139,7 +328,10 @@ router.route('/')
                 linhaviva, linhavivaHoje, linhavivaSemana, linhavivaMes, linhavivaAno,
                 poda, podaHoje, podaSemana, podaMes, podaAno,
                 decp, decpHoje, decpSemana, decpMes, decpAno,
-                deop, deopHoje, deopSemana, deopMes, deopAno
+                deop, deopHoje, deopSemana, deopMes, deopAno, grafico, realizado, equipesApuradas,
+                equipesAlcancandoMeta, realizadoEquipes, metaAcumuladaEquipes, oportunidade,
+                metaMensal, metaAcumulada, diferenca, global, segmentos,
+                graficoConstrucao, graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP
             })
         })
         else Apontamento.findById(_id).then(apontamento => {
@@ -166,7 +358,7 @@ const verDatas = () => {
         inicioMes: new Date(moment(`${ano}${mes}01`).format()),
         finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(24, 'hours').format()),
         inicioAno: new Date(moment(`${ano}0101`).format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format())
     }
 }
 
@@ -230,7 +422,20 @@ router.route('/verAtividades')
                 }))
             } else res.status(400).json({ sucesso: false, mensagem: "Apontamento não encontrado." })
         })
+    })
 
+router.route('/faturar')
+    .post((req, res) => {
+        const { _id } = req.body;
+        Apontamento.findById(_id).then(apontamento => {
+            if (apontamento) {
+                apontamento.faturar();
+                apontamento.save((error) => {
+                    if (!error) res.status(200).json({sucesso: true, mensagem: "Apontamento faturado com sucesso.", apontamento});
+                    else res.status(400).json({ sucesso: false, mensagem: error.message })
+                })
+            } else res.status(400).json({ sucesso: false, mensagem: "Apontamento não encontrado." })
+        })
     })
 
 module.exports = router;

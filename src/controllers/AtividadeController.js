@@ -35,7 +35,6 @@ router.route('/')
         let atividades;
         if (nome === "all") atividades = await Atividade.find();
         else atividades = await Atividade.find({ nome: { $regex: nome, $options: 'i' } });
-
         let atividadesShow = [];
         if (req.equipes.includes('CONSTRUCAO')) {
             atividadesShow = atividades

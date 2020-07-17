@@ -8,6 +8,8 @@ const currentWeek = require('current-week');
 
 const EquipeSchema = new Schema({
     _id: { type: String, required: true },
+    segmento: {type: String, enum: ['LINHA VIVA LEVE', 'LINHA VIVA PESADA', 'LINHA MORTA PESADA', 
+        'LINHA MORTA LEVE', 'CONSTRUCAO', 'PODA URBANA', 'PODA RURAL', 'PERDA'], required: true},
     tipo: { type: String, enum: ['MANUTENCAO', 'CONSTRUCAO', 'PODA', 'DEOP', 'DECP', 'LINHA VIVA'], required: true },
     funcionarios: { type: Map, required: true }, //[{ _id: { type: String, required: true } }],
     local: {

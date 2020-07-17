@@ -34,6 +34,7 @@ const ApontamentoSchema = new Schema({
     observacao: String,
     tensao: String,
     pes: String,
+    faturada: Boolean,
     equipe: { type: String, required: true },
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
@@ -72,6 +73,7 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
                 this.recolha = recolha;
                 this.tensao = tensao;
             }
+            this.faturada = false;
             this.pessoa.supervisor = pessoaSupervisor;
             this.pessoa.encarregado = pessoaEncarregado;
             this.veiculo.placa = veiculo;
@@ -167,7 +169,10 @@ ApontamentoSchema.methods.verAtividades = function verAtividades() {
             }
         })
     })
+}
 
+ApontamentoSchema.methods.faturar = function faturar() {
+    this.faturada = true;
 }
 
 module.exports = moongose.model('Apontamento', ApontamentoSchema);
