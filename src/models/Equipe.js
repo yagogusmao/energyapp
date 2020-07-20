@@ -27,7 +27,7 @@ const EquipeSchema = new Schema({
     metaAnual: Number,
 });
 
-EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo, base) {
+EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local, veiculo, base, segmento) {
     try {
         if (funcionarios === undefined) {
             return await validarVeiculo(veiculo).then(async veiculo => {
@@ -36,6 +36,7 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                 this.tipo = tipo;
                 this.local = local;
                 this.base = base;
+                this.segmento = segmento;
                 if (veiculo !== undefined) {
                     this.validarEquipe();
                     this.veiculo = veiculo;
@@ -61,6 +62,7 @@ EquipeSchema.methods.criar = async function criar(_id, tipo, funcionarios, local
                 this.base = base;
                 this.tipo = tipo;
                 this.local = local;
+                this.segmento = segmento;
                 if (veiculo !== undefined) {
                     this.validarEquipe();
                     this.veiculo = veiculo;
