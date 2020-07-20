@@ -35,6 +35,7 @@ const ApontamentoSchema = new Schema({
     tensao: String,
     pes: String,
     faturada: Boolean,
+    dataFaturamento: Date,
     equipe: { type: String, required: true },
     cidade: { type: String, required: true },
     endereco: { type: String, required: true },
@@ -173,6 +174,7 @@ ApontamentoSchema.methods.verAtividades = function verAtividades() {
 
 ApontamentoSchema.methods.faturar = function faturar() {
     this.faturada = true;
+    this.dataFaturamento = new Date();
 }
 
 module.exports = moongose.model('Apontamento', ApontamentoSchema);

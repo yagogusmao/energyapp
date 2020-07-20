@@ -146,7 +146,19 @@ router.route('/')
                     .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
                     return acumulado = acumulado + 1;
                 else return acumulado;
-            }, 0)
+            }, 0);
+
+            const faturado = construcao.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes).concat(
+                manutencao.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes).concat(
+                    linhaviva.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes).concat(
+                        poda.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes).concat(
+                            decp.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes).concat(
+                                deop.filter(apontamento => apontamento.dataFaturamento > data.inicioMes && apontamento.dataFaturamento < data.finalMes)
+                            )
+                        )
+                    )
+                )
+            ).reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0);
 
             const realizadoEquipes = equipes.map(equipe =>
                 apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
@@ -163,7 +175,7 @@ router.route('/')
                 else return acumulado;
             }, 0);
 
-            const metaMensal = 50000;
+            const metaMensal = 300000;
             const metaAcumulada = metaMensal / new Date().getDate();
             const diferenca = metaAcumulada - realizado;
 
@@ -235,7 +247,7 @@ router.route('/')
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
             )
 
-            const global = [{ metaMensal, metaAcumulada, realizado, equipesApuradas, equipesAlcancandoMeta, diferenca, oportunidade }];
+            const global = [{ metaMensal, metaAcumulada, realizado, equipesApuradas, equipesAlcancandoMeta, diferenca, oportunidade, faturado }];
 
             const segmentos = [{
                 segmento: "LINHA VIVA LEVE",
@@ -331,7 +343,8 @@ router.route('/')
                 deop, deopHoje, deopSemana, deopMes, deopAno, grafico, realizado, equipesApuradas,
                 equipesAlcancandoMeta, realizadoEquipes, metaAcumuladaEquipes, oportunidade,
                 metaMensal, metaAcumulada, diferenca, global, segmentos,
-                graficoConstrucao, graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP
+                graficoConstrucao, graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP,
+                faturado
             })
         })
         else Apontamento.findById(_id).then(apontamento => {
@@ -431,10 +444,34 @@ router.route('/faturar')
             if (apontamento) {
                 apontamento.faturar();
                 apontamento.save((error) => {
-                    if (!error) res.status(200).json({sucesso: true, mensagem: "Apontamento faturado com sucesso.", apontamento});
+                    if (!error) res.status(200).json({ sucesso: true, mensagem: "Apontamento faturado com sucesso.", apontamento });
                     else res.status(400).json({ sucesso: false, mensagem: error.message })
                 })
             } else res.status(400).json({ sucesso: false, mensagem: "Apontamento não encontrado." })
+        })
+    })
+
+router.route('/faturar/obra')
+    .post((req, res) => {
+        const { codigoObra } = req.body;
+        Apontamento.find({ codigoObra, base: req.base }).or([{ tipo: req.equipes }]).then(async apontamentos => {
+            if (apontamentos.length !== 0)
+                res.status(200).json({
+                    sucesso: true,
+                    mensagem: "Obra faturada com sucesso.",
+                    apontamentos: await Promise.all(apontamentos.map(apontamento => {
+                        apontamento.faturar();
+                        return apontamento.save();
+                    }))
+                })
+            else res.status(400).json({ sucesso: false, mensagem: "Obra não encontrada." });
+        })
+    })
+    .get((req, res) => {
+        const { codigoObra } = queryString.parse(req._parsedUrl.query);
+        Apontamento.find({ codigoObra, base: req.base }).or([{ tipo: req.equipes }]).then(async apontamentos => {
+            if (apontamentos.length !== 0) res.status(200).json({ sucesso: true, mensagem: "Apontamentos da obra.", apontamentos })
+            else res.status(400).json({ sucesso: false, mensagem: "Obra não encontrada." });
         })
     })
 
