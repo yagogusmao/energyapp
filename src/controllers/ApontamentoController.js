@@ -321,6 +321,232 @@ router.route('/')
                 }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
             }]
 
+            const equipesLeom = equipes.filter(equipe => (equipe.tipo === "LINHA VIVA" || equipe.tipo === "PODA"));
+            const equipesAnderson = equipes.filter(equipe => (equipe.tipo === "CONSTRUCAO" || equipe.tipo === "MANUTENCAO"));
+            const equipesAlisson = equipes.filter(equipe => (equipe.tipo === "DEOP" || equipe.tipo === "DECP"));
+
+            const equipesValberio = equipes.filter(equipe => equipe.tipo === "MANUTENCAO");
+            const equipesHildevan = equipes.filter(equipe => equipe.tipo === "CONSTRUCAO");
+            const equipesEdnaldo = equipes.filter(equipe => equipe.tipo === "DECP");
+            const equipesAntonio = equipes.filter(equipe => equipe.tipo === "DEOP");
+
+            const fiscaisTecnicos = [{
+                fiscalTecnico: "VALBÉRIO",
+                metaMensal: equipesValberio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesValberio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesValberio.length,
+                equipesAlcancandoMeta: equipesValberio
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesValberio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesValberio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                fiscalTecnico: "HILDEVAN",
+                metaMensal: equipesHildevan
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesHildevan
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesHildevan.length,
+                equipesAlcancandoMeta: equipesHildevan
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesHildevan
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesHildevan
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                fiscalTecnico: "LAERTE",
+                metaMensal: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesLeom.length,
+                equipesAlcancandoMeta: equipesLeom
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                fiscalTecnico: "EDNALDO",
+                metaMensal: equipesEdnaldo
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesEdnaldo
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DECP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesEdnaldo.length,
+                equipesAlcancandoMeta: equipesEdnaldo
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesEdnaldo
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "DECP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesEdnaldo
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                fiscalTecnico: "ANTONIO",
+                metaMensal: equipesAntonio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesAntonio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesAntonio.length,
+                equipesAlcancandoMeta: equipesAntonio
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesAntonio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesAntonio
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }]
+
+            const supervisores = [{
+                supervisor: "ANDERSON",
+                metaMensal: equipesAnderson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesAnderson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO" || apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesAnderson.length,
+                equipesAlcancandoMeta: equipesAnderson
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesAnderson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO" || apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesAnderson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                supervisor: "LEOM",
+                metaMensal: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesLeom.length,
+                equipesAlcancandoMeta: equipesLeom
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesLeom
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }, {
+                supervisor: "ALISSON",
+                metaMensal: equipesAlisson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                metaAcumulada: equipesAlisson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DECP" || apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                equipesApuradas: equipesAlisson.length,
+                equipesAlcancandoMeta: equipesAlisson
+                    .reduce((acumulado, equipe) => {
+                        if (apontamentos.filter(apontamento => apontamento.equipe === equipe._id)
+                            .filter(apontamento => (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes))
+                            .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0) > equipe.metaMensal)
+                            return acumulado = acumulado + 1;
+                        else return acumulado;
+                    }, 0),
+                diferença: equipesAlisson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
+                    -
+                    apontamentos.filter(apontamento => ((apontamento.tipo === "DECP" || apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                oportunidade: equipesAlisson
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+            }]
+
+            const supervisaoErik = supervisores.filter(supervisor => supervisor.supervisor === "ANDERSON" || supervisor.supervisor === "LEOM");
+            const supervisaoFred = supervisores.filter(supervisor => supervisor.supervisor === "ALISSON");
+
+            const gestores = [{
+                gestor: "ERIK",
+                metaMensal: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.metaMensal, 0),
+                metaAcumulada: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.metaAcumulada, 0),
+                equipesApuradas: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.equipesApuradas, 0),
+                equipesAlcancandoMeta: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.equipesAlcancandoMeta, 0),
+                diferença: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.diferença, 0),
+                oportunidade: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.oportunidade, 0)
+            }, {
+                gestor: "FRED",
+                metaMensal: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.metaMensal, 0),
+                metaAcumulada: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.metaAcumulada, 0),
+                equipesApuradas: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.equipesApuradas, 0),
+                equipesAlcancandoMeta: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.equipesAlcancandoMeta, 0),
+                diferença: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.diferença, 0),
+                oportunidade: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.oportunidade, 0)
+            }]
+
             const grafico = graficoConstrucao.concat(graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP);
 
             grafico.unshift(['Equipes', 'Realizado', { role: 'annotation' }, { role: 'style' }, 'Meta Acumulada', 'Meta Mensal']);
@@ -344,7 +570,7 @@ router.route('/')
                 equipesAlcancandoMeta, realizadoEquipes, metaAcumuladaEquipes, oportunidade,
                 metaMensal, metaAcumulada, diferenca, global, segmentos,
                 graficoConstrucao, graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP,
-                faturado
+                faturado, supervisores, gestores, fiscaisTecnicos
             })
         })
         else Apontamento.findById(_id).then(apontamento => {
