@@ -20,12 +20,12 @@ const Veiculo = require('../models/Veiculo');
 router.route('/')
     .post((req, res) => {
         try {
-            const { _id, tipo, funcionarios, local, veiculo } = req.body;
+            const { _id, tipo, funcionarios, local, veiculo, segmento } = req.body;
             if (req._id === "517") {
                 Equipe.findById(_id).then(equipe => {
                     if (!equipe) {
                         let equipe = new Equipe();
-                        equipe.criar(_id, tipo, funcionarios, local, veiculo, req.base).then(() => {
+                        equipe.criar(_id, tipo, funcionarios, local, veiculo, req.base, segmento).then(() => {
                             equipe.save((erro, equipe) => {
                                 if (erro) res.status(400).json({ sucesso: false, mensagem: erro.message })
                                 else res.status(201).json({
