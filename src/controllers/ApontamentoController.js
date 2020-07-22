@@ -177,7 +177,7 @@ router.route('/')
 
             const metaMensal = 300000;
             const metaAcumulada = (metaMensal / new Date().getDate()).toFixed(2);
-            const diferenca = (metaAcumulada - realizado).toFixed(2);
+            const diferenca = (realizado - metaAcumulada).toFixed(2);
 
             const graficoConstrucao = equipes.filter((equipe, i) => {
                 equipe.i = i;
