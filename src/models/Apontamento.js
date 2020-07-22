@@ -16,7 +16,7 @@ const ApontamentoSchema = new Schema({
     veiculo: {
         placa: { type: String, required: true },
         kilometragem: {
-            inicio: { type: Number, required: true },
+            inicio: Number,
             fim: Number,
             total: Number
         }
@@ -57,7 +57,7 @@ const ApontamentoSchema = new Schema({
 });
 
 ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSupervisor, pessoaEncarregado, pes,
-    equipe, cidade, endereco, localSaida, codigoObra, base, subestacao, area, alimentador, origemOS, 
+    equipe, cidade, endereco, localSaida, codigoObra, base, subestacao, area, alimentador, origemOS,
     quantidadePlanejada, quantidadeExecutada, recolha, tensao) {
     try {
         return await reservarEquipe(equipe, tipo).then(async equipe => {
@@ -78,7 +78,6 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
             this.pessoa.supervisor = pessoaSupervisor;
             this.pessoa.encarregado = pessoaEncarregado;
             this.veiculo.placa = veiculo;
-            this.veiculo.kilometragem.inicio = veiculo.kilometragem;
             this.pes = pes;
             this.equipe = equipe._id;
             this.cidade = cidade;
@@ -94,13 +93,14 @@ ApontamentoSchema.methods.iniciar = async function iniciar(tipo, pessoaSuperviso
 }
 
 ApontamentoSchema.methods.finalizar = async function finalizar(tecnicoEnergisa, veiculoKmFim, PgCp,
-    atividades, horarioInicio, horarioFinal, observacao) {
+    atividades, horarioInicio, horarioFinal, observacao, veiculoKmInicio) {
     try {
-        return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim), validarAtividades(atividades)])
+        return await Promise.all([liberarEquipe(this.equipe, this, veiculoKmFim, veiculoKmInicio), validarAtividades(atividades)])
             .then(promessas => {
                 const [equipe, lucro] = promessas;
                 this.lucro = lucro;
                 this.pessoa.tecnicoEnergisa = tecnicoEnergisa;
+                this.veiculo.kilometragem.inicio = veiculoKmInicio;
                 this.veiculo.kilometragem.fim = veiculoKmFim;
                 this.veiculo.kilometragem.total = this.veiculo.kilometragem.fim - this.veiculo.kilometragem.inicio;
                 this.PgCp = PgCp;
@@ -129,17 +129,21 @@ const reservarEquipe = async (equipe, tipo) => {
     })
 }
 
-const liberarEquipe = async (equipe, apontamento, veiculoKmFim) => {
+const liberarEquipe = async (equipe, apontamento, veiculoKmFim, veiculoKmInicio) => {
     return await Equipe.findById(equipe).then(async equipe => {
         if (equipe) {
             if (equipe.status === "OCUPADA") {
-                if (apontamento.veiculo.kilometragem.inicio <= veiculoKmFim) {
+                const veiculo = await Veiculo.findById(apontamento.veiculo.placa);
+                if (veiculo.kilometragem > veiculoKmInicio) throw `Kilometragem inválida. A kilometragem atual do veículo é 
+                    ${veiculo.kilometragem}`;
+                if (veiculoKmFim < veiculoKmInicio) throw "Kilometragem final menor do que a kilometragem inicial."
+                if (veiculo.kilometragem < veiculoKmFim) {
                     equipe.status = "OK";
                     equipe.adicionarApontamento(apontamento._id, veiculoKmFim);
                     await equipe.save();
                     return equipe;
                 } else throw `Kilometragem inválida. A kilometragem atual do veículo é 
-                    ${apontamento.veiculo.kilometragem.inicio}`;
+                    ${veiculo.kilometragem}`;
             } else throw `Equipe não está ocupada. O status da equipe é ${equipe.status}`;
         } else throw `Equipe não encontrada.`;
     })

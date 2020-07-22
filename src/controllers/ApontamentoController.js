@@ -68,11 +68,11 @@ router.route('/')
     .put((req, res) => {
         try {
             if (req.funcao === "SUPERVISOR" || req._id === "517") {
-                const { _id, tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao } = req.body;
+                const { _id, tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao, veiculoKmInicio } = req.body;
                 Apontamento.findById(_id).then(apontamento => {
                     if (apontamento) {
                         if (apontamento.status === "INICIADO") {
-                            apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao).then(() => {
+                            apontamento.finalizar(tecnicoEnergisa, veiculoKmFim, PgCp, atividades, horarioInicio, horarioFinal, observacao, veiculoKmInicio).then(() => {
                                 apontamento.save((erro, apontamento) => {
                                     if (!erro) res.status(200).json({
                                         sucesso: true,
