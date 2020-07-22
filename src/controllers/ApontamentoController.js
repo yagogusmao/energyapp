@@ -176,8 +176,8 @@ router.route('/')
             }, 0);
 
             const metaMensal = 300000;
-            const metaAcumulada = metaMensal / new Date().getDate();
-            const diferenca = metaAcumulada - realizado;
+            const metaAcumulada = (metaMensal / new Date().getDate()).toFixed(2);
+            const diferenca = (metaAcumulada - realizado).toFixed(2);
 
             const graficoConstrucao = equipes.filter((equipe, i) => {
                 equipe.i = i;
@@ -254,71 +254,71 @@ router.route('/')
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA VIVA LEVE";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA VIVA LEVE";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "LINHA VIVA PESADA",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA VIVA PESADA";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA VIVA PESADA";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "LINHA MORTA LEVE",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA MORTA LEVE";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA MORTA LEVE";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "LINHA MORTA PESADA",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA MORTA PESADA";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "LINHA MORTA PESADA";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "CONSTRUCAO",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "CONSTRUCAO";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "CONSTRUCAO";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "PODA URBANA",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "PODA URBANA";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "PODA URBANA";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }, {
                 segmento: "PODA RURAL",
                 metaAcumulada: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "PODA RURAL";
-                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0),
+                }).reduce((acumulado, equipe) => acumulado += metaAcumuladaEquipes[equipe.i], 0).toFixed(2),
                 realizado: equipes.filter((equipe, i) => {
                     equipe.i = i;
                     return equipe.segmento === "PODA RURAL";
-                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0)
+                }).reduce((acumulado, equipe) => acumulado += realizadoEquipes[equipe.i], 0).toFixed(2)
             }]
 
             const equipesLeom = equipes.filter(equipe => (equipe.tipo === "LINHA VIVA" || equipe.tipo === "PODA"));
@@ -333,11 +333,11 @@ router.route('/')
             const fiscaisTecnicos = [{
                 fiscalTecnico: "VALBÉRIO",
                 metaMensal: equipesValberio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesValberio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesValberio.length,
                 equipesAlcancandoMeta: equipesValberio
                     .reduce((acumulado, equipe) => {
@@ -347,21 +347,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesValberio
+                diferenca: (equipesValberio
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesValberio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 fiscalTecnico: "HILDEVAN",
                 metaMensal: equipesHildevan
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesHildevan
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesHildevan.length,
                 equipesAlcancandoMeta: equipesHildevan
                     .reduce((acumulado, equipe) => {
@@ -371,21 +371,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesHildevan
+                diferenca: (equipesHildevan
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesHildevan
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 fiscalTecnico: "LAERTE",
                 metaMensal: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesLeom.length,
                 equipesAlcancandoMeta: equipesLeom
                     .reduce((acumulado, equipe) => {
@@ -395,21 +395,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesLeom
+                diferenca: (equipesLeom
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 fiscalTecnico: "EDNALDO",
                 metaMensal: equipesEdnaldo
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesEdnaldo
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DECP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesEdnaldo.length,
                 equipesAlcancandoMeta: equipesEdnaldo
                     .reduce((acumulado, equipe) => {
@@ -419,21 +419,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesEdnaldo
+                diferenca: (equipesEdnaldo
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "DECP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesEdnaldo
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 fiscalTecnico: "ANTONIO",
                 metaMensal: equipesAntonio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesAntonio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesAntonio.length,
                 equipesAlcancandoMeta: equipesAntonio
                     .reduce((acumulado, equipe) => {
@@ -443,23 +443,23 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesAntonio
+                diferenca: (equipesAntonio
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesAntonio
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }]
 
             const supervisores = [{
                 supervisor: "ANDERSON",
                 metaMensal: equipesAnderson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesAnderson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO" || apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesAnderson.length,
                 equipesAlcancandoMeta: equipesAnderson
                     .reduce((acumulado, equipe) => {
@@ -469,21 +469,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesAnderson
+                diferenca: (equipesAnderson
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "CONSTRUCAO" || apontamento.tipo === "MANUTENCAO") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesAnderson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 supervisor: "LEOM",
                 metaMensal: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesLeom.length,
                 equipesAlcancandoMeta: equipesLeom
                     .reduce((acumulado, equipe) => {
@@ -493,21 +493,21 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesLeom
+                diferenca: (equipesLeom
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "LINHA VIVA" || apontamento.tipo === "PODA") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesLeom
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }, {
                 supervisor: "ALISSON",
                 metaMensal: equipesAlisson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2),
                 metaAcumulada: equipesAlisson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0),
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0).toFixed(2),
                 realizado: apontamentos.filter(apontamento => ((apontamento.tipo === "DECP" || apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                    .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0).toFixed(2),
                 equipesApuradas: equipesAlisson.length,
                 equipesAlcancandoMeta: equipesAlisson
                     .reduce((acumulado, equipe) => {
@@ -517,13 +517,13 @@ router.route('/')
                             return acumulado = acumulado + 1;
                         else return acumulado;
                     }, 0),
-                diferença: equipesAlisson
+                diferenca: (equipesAlisson
                     .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal / new Date().getDate() : 0, 0)
                     -
                     apontamentos.filter(apontamento => ((apontamento.tipo === "DECP" || apontamento.tipo === "DEOP") && (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes)))
-                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0),
+                        .reduce((acumulado, apontamento) => acumulado += apontamento.lucro, 0)).toFixed(2),
                 oportunidade: equipesAlisson
-                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0)
+                    .reduce((acumulado, equipe) => acumulado += equipe.metaMensal !== undefined ? equipe.metaMensal : 0, 0).toFixed(2)
             }]
 
             const supervisaoErik = supervisores.filter(supervisor => supervisor.supervisor === "ANDERSON" || supervisor.supervisor === "LEOM");
@@ -531,20 +531,22 @@ router.route('/')
 
             const gestores = [{
                 gestor: "ERIK",
-                metaMensal: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.metaMensal, 0),
-                metaAcumulada: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.metaAcumulada, 0),
+                metaMensal: supervisaoErik.reduce((acumulado, supervisao) => acumulado += Number(supervisao.metaMensal), 0).toFixed(2),
+                metaAcumulada: supervisaoErik.reduce((acumulado, supervisao) => acumulado += Number(supervisao.metaAcumulada), 0).toFixed(2),
+                realizado: supervisaoErik.reduce((acumulado, supervisao) => acumulado += Number(supervisao.realizado), 0).toFixed(2),
                 equipesApuradas: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.equipesApuradas, 0),
                 equipesAlcancandoMeta: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.equipesAlcancandoMeta, 0),
-                diferença: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.diferença, 0),
-                oportunidade: supervisaoErik.reduce((acumulado, supervisao) => acumulado += supervisao.oportunidade, 0)
+                diferenca: supervisaoErik.reduce((acumulado, supervisao) => acumulado += Number(supervisao.diferenca), 0).toFixed(2),
+                oportunidade: supervisaoErik.reduce((acumulado, supervisao) => acumulado += Number(supervisao.oportunidade), 0).toFixed(2)
             }, {
                 gestor: "FRED",
-                metaMensal: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.metaMensal, 0),
-                metaAcumulada: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.metaAcumulada, 0),
+                metaMensal: supervisaoFred.reduce((acumulado, supervisao) => acumulado += Number(supervisao.metaMensal), 0).toFixed(2),
+                metaAcumulada: supervisaoFred.reduce((acumulado, supervisao) => acumulado += Number(supervisao.metaAcumulada), 0).toFixed(2),
+                realizado: supervisaoFred.reduce((acumulado, supervisao) => acumulado += Number(supervisao.realizado), 0).toFixed(2),
                 equipesApuradas: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.equipesApuradas, 0),
                 equipesAlcancandoMeta: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.equipesAlcancandoMeta, 0),
-                diferença: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.diferença, 0),
-                oportunidade: supervisaoFred.reduce((acumulado, supervisao) => acumulado += supervisao.oportunidade, 0)
+                diferenca: supervisaoFred.reduce((acumulado, supervisao) => acumulado += Number(supervisao.diferenca), 0).toFixed(2),
+                oportunidade: supervisaoFred.reduce((acumulado, supervisao) => acumulado += Number(supervisao.oportunidade), 0).toFixed(2)
             }]
 
             const grafico = graficoConstrucao.concat(graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP);
