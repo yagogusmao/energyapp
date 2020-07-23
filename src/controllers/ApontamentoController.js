@@ -131,6 +131,62 @@ router.route('/')
             const deopSemana = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioSemana && apontamento.hora.fim < data.finalSemana) })
             const deopMes = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
             const deopAno = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioAno && apontamento.hora.fim < data.finalAno) })
+            res.status(200).json({
+                sucesso: true,
+                mensagem: "Apontamentos cadastrados no sistema.",
+                apontamentos,
+                construcao, construcaoHoje, construcaoSemana, construcaoMes, construcaoAno,
+                manutencao, manutencaoHoje, manutencaoSemana, manutencaoMes, manutencaoAno,
+                linhaviva, linhavivaHoje, linhavivaSemana, linhavivaMes, linhavivaAno,
+                poda, podaHoje, podaSemana, podaMes, podaAno,
+                decp, decpHoje, decpSemana, decpMes, decpAno,
+                deop, deopHoje, deopSemana, deopMes, deopAno
+            })
+        })
+        else Apontamento.findById(_id).then(apontamento => {
+            if (apontamento) res.status(200).json({
+                sucesso: true,
+                mensagem: "Apontamento retornado com sucesso.", apontamento
+            });
+            else res.status(400).json({ sucesso: false, erro: "Apontamento não encontrado." });
+        }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
+    })
+
+const verDatas = () => {
+    const firstDayWeek = currentWeek.getFirstWeekDay();
+    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + new Date().getDate().toString();
+    const mes = new Date().getMonth() > 9 ? (new Date().getMonth() + 1).toString() : '0' + (new Date().getMonth() + 1).toString();
+    const mesSemana = Number(firstDayWeek.split('.')[1]) + 1 > 9 ? `${Number(firstDayWeek.split('.')[1]) + 1}` : `0${Number(firstDayWeek.split('.')[1]) + 1}`;
+    const diaSemana = Number(firstDayWeek.split('.')[0]) - 1 > 9 ? `${Number(firstDayWeek.split('.')[0]) - 1}` : `0${Number(firstDayWeek.split('.')[0]) - 1}`;
+    const ano = new Date().getFullYear().toString();
+    return {
+        hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
+        amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
+        inicioSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).format()),
+        finalSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).add(7, 'days').format()),
+        inicioMes: new Date(moment(`${ano}${mes}01`).format()),
+        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(24, 'hours').format()),
+        inicioAno: new Date(moment(`${ano}0101`).format()),
+        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format())
+    }
+}
+
+router.route('/dashboard')
+    .get((req, res) => {
+        Apontamento.find({ status: "FINALIZADO", base: req.base }).then(async apontamentos => {
+            const data = verDatas();
+            const construcao = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "CONSTRUCAO" });
+            const construcaoMes = construcao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const manutencao = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "MANUTENCAO" });
+            const manutencaoMes = manutencao.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const linhaviva = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "LINHA VIVA" });
+            const linhavivaMes = linhaviva.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const poda = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "PODA" });
+            const podaMes = poda.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const decp = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DECP" })
+            const decpMes = decp.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
+            const deop = apontamentos.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return apontamento.tipo === "DEOP" });
+            const deopMes = deop.filter(apontamento => { apontamento.lucro = apontamento.lucro.toFixed(2); return (apontamento.hora.fim > data.inicioMes && apontamento.hora.fim < data.finalMes) })
 
             const realizado = construcaoMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
                 manutencaoMes.reduce((acumulado, apontamento) => acumulado += apontamento.lucro,
@@ -190,7 +246,7 @@ router.route('/')
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
             }
-            )
+            ).sort();
             const graficoManutencao = equipes.filter((equipe, i) => {
                 equipe.i = i;
                 return equipe.tipo === "MANUTENCAO"
@@ -201,7 +257,7 @@ router.route('/')
                 realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
-            )
+            ).sort();
             const graficoLinhaviva = equipes.filter((equipe, i) => {
                 equipe.i = i;
                 return equipe.tipo === "LINHA VIVA"
@@ -212,7 +268,7 @@ router.route('/')
                 realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
-            )
+            ).sort();
             const graficoPoda = equipes.filter((equipe, i) => {
                 equipe.i = i;
                 return equipe.tipo === "PODA"
@@ -223,7 +279,7 @@ router.route('/')
                 realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
-            )
+            ).sort();
             const graficoDECP = equipes.filter((equipe, i) => {
                 equipe.i = i;
                 return equipe.tipo === "DECP"
@@ -234,7 +290,7 @@ router.route('/')
                 realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
-            )
+            ).sort();
             const graficoDEOP = equipes.filter((equipe, i) => {
                 equipe.i = i;
                 return equipe.tipo === "DEOP"
@@ -245,7 +301,7 @@ router.route('/')
                 realizadoEquipes[equipe.i] >= metaAcumuladaEquipes[equipe.i] ? 'color: green' : 'color: red',
                 metaAcumuladaEquipes[equipe.i],
                 equipe.metaMensal !== undefined ? equipe.metaMensal : 0]
-            )
+            ).sort();
 
             const global = [{ metaMensal, metaAcumulada, realizado, equipesApuradas, equipesAlcancandoMeta, diferenca, oportunidade, faturado }];
 
@@ -561,47 +617,15 @@ router.route('/')
 
             res.status(200).json({
                 sucesso: true,
-                mensagem: "Apontamentos cadastrados no sistema.",
-                apontamentos,
-                construcao, construcaoHoje, construcaoSemana, construcaoMes, construcaoAno,
-                manutencao, manutencaoHoje, manutencaoSemana, manutencaoMes, manutencaoAno,
-                linhaviva, linhavivaHoje, linhavivaSemana, linhavivaMes, linhavivaAno,
-                poda, podaHoje, podaSemana, podaMes, podaAno,
-                decp, decpHoje, decpSemana, decpMes, decpAno,
-                deop, deopHoje, deopSemana, deopMes, deopAno, grafico, realizado, equipesApuradas,
+                mensagem: "Dashboard retornado com sucesso.",
+                grafico, realizado, equipesApuradas,
                 equipesAlcancandoMeta, realizadoEquipes, metaAcumuladaEquipes, oportunidade,
                 metaMensal, metaAcumulada, diferenca, global, segmentos,
                 graficoConstrucao, graficoManutencao, graficoLinhaviva, graficoPoda, graficoDECP, graficoDEOP,
                 faturado, supervisores, gestores, fiscaisTecnicos
             })
         })
-        else Apontamento.findById(_id).then(apontamento => {
-            if (apontamento) res.status(200).json({
-                sucesso: true,
-                mensagem: "Apontamento retornado com sucesso.", apontamento
-            });
-            else res.status(400).json({ sucesso: false, erro: "Apontamento não encontrado." });
-        }).catch(erro => res.status(400).json({ sucesso: false, erro: erro.message }))
     })
-
-const verDatas = () => {
-    const firstDayWeek = currentWeek.getFirstWeekDay();
-    const dia = new Date().getDate() > 9 ? new Date().getDate().toString() : '0' + new Date().getDate().toString();
-    const mes = new Date().getMonth() > 9 ? (new Date().getMonth() + 1).toString() : '0' + (new Date().getMonth() + 1).toString();
-    const mesSemana = Number(firstDayWeek.split('.')[1]) + 1 > 9 ? `${Number(firstDayWeek.split('.')[1]) + 1}` : `0${Number(firstDayWeek.split('.')[1]) + 1}`;
-    const diaSemana = Number(firstDayWeek.split('.')[0]) - 1 > 9 ? `${Number(firstDayWeek.split('.')[0]) - 1}` : `0${Number(firstDayWeek.split('.')[0]) - 1}`;
-    const ano = new Date().getFullYear().toString();
-    return {
-        hoje: new Date(moment(`${ano}${mes}${dia}`).format()),
-        amanha: new Date(moment(`${ano}${mes}${dia}`).add(1, 'day').format()),
-        inicioSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).format()),
-        finalSemana: new Date(moment(`${ano}${mesSemana}${diaSemana}`).add(7, 'days').format()),
-        inicioMes: new Date(moment(`${ano}${mes}01`).format()),
-        finalMes: new Date(moment(new Date(Number(ano), Number(mes), 0)).add(24, 'hours').format()),
-        inicioAno: new Date(moment(`${ano}0101`).format()),
-        finalAno: new Date(moment(new Date(Number(ano), 12, 0)).add(24, 'hours').format())
-    }
-}
 
 router.route('/porTempo')
     .get((req, res) => {
