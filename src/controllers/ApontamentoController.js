@@ -676,7 +676,7 @@ router.route('/listarEncarregados')
             mensagem: "Encarregados cadastrados no sistema.", funcionarios: []
         })
     })
-
+//teste
 router.route('/verAtividades')
     .get((req, res) => {
         const { _id } = queryString.parse(req._parsedUrl.query);
